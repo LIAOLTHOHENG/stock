@@ -1,0 +1,7 @@
+shopify-web-api-789bd9bbc4-phvjp
+
+
+kubectl logs shopify-web-api-8bdfc9698-c4r4t -f -n yq-shopify-test1
+
+
+kubectl logs shopify-web-api-8bdfc9698-xw7mm -f -n yq-shopify-test1
