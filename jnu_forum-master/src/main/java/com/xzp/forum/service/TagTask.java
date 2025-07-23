@@ -9,6 +9,7 @@ import com.xzp.forum.model.StockBasic;
 import com.xzp.forum.model.StockDaily;
 import com.xzp.forum.model.UserTagDTO;
 import com.xzp.forum.model.UserTagRelation;
+import com.xzp.forum.util.StockLimitUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -75,13 +76,9 @@ public class TagTask {
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.initialize();
         threadPoolTaskExecutor = executor;
-        tagMap.put(LeafTag._10CM.getCode(), LeafTag._10CM.getId());
-        tagMap.put(LeafTag._20CM.getCode(), LeafTag._20CM.getId());
-        tagMap.put(LeafTag.CAN_DEAL.getCode(), LeafTag.CAN_DEAL.getId());
-        tagMap.put(LeafTag.STABLE.getCode(), LeafTag.STABLE.getId());
-        tagMap.put(LeafTag.UP.getCode(), LeafTag.UP.getId());
-        tagMap.put(LeafTag.DOWN.getCode(), LeafTag.DOWN.getId());
-        tagMap.put(LeafTag.FLAT.getCode(), LeafTag.FLAT.getId());
+        for(LeafTag tag : LeafTag.values()){
+            tagMap.put(tag.getCode(), tag.getId());
+        }
     }
 
     /**
@@ -186,29 +183,7 @@ public class TagTask {
     private List<UserTagDTO> runAllStockTaskCore(StockBasic stock, LocalDate date) {
         List<UserTagDTO> resultList = new ArrayList<>();
 
-        // 打_10CM标签逻辑
-      /*  if (StockUtil.is10cm(stock.getTsCode())) {
-            resultList.add(buildTagRelation(stock.getSymbol(), LeafTag._10CM.getCode()));
-        }
-
-        // 打_20CM标签逻辑
-        if (StockUtil.is20cm(stock.getTsCode())) {
-            resultList.add(buildTagRelation(stock.getSymbol(), LeafTag._20CM.getCode()));
-        }
-
-        // 打CAN_DEAL标签逻辑
-        if (!StockUtil.isRestrictedStock(stock.getTsCode())) {
-            resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.CAN_DEAL.getCode()));
-        }*/
-
-     /*   String code = stock.getTsCode();
-        List<StockDaily> stockDailyList = stockDailyMapper.selectByTsCode(code);
-        //缩量至平稳
-        if (stable(stockDailyList)) {
-            resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.STABLE.getCode()));
-        }*/
-
-        //阳线
+        //涨跌幅
         StockDaily stockDaily = stockDailyMapper.selectByTsCodeAndDate(stock.getTsCode(), date);
         if (stockDaily != null && stockDaily.getChange().compareTo(BigDecimal.ZERO) > 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP.getCode(), date));
@@ -216,6 +191,16 @@ public class TagTask {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.DOWN.getCode(), date));
         } else {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.FLAT.getCode(), date));
+        }
+
+        //涨跌停
+        if(StockLimitUtils.isLimitUp(stockDaily)){
+            resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.ZHANGTING.getCode(), date));
+        }else if(StockLimitUtils.isLimitDown(stockDaily)){
+             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.DIETING.getCode(), date));
+        }
+        if(StockLimitUtils.touchLimitUp(stockDaily)){
+            resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.TOUCH_ZHANGTING.getCode(), date));
         }
 
         return resultList;

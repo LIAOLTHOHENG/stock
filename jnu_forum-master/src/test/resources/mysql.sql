@@ -53,3 +53,17 @@ CREATE TABLE `user_tag_relation` (
                                      PRIMARY KEY (`id`) USING BTREE,
                                      UNIQUE KEY `user_tag_relation_symbol_IDX` (`symbol`,`FTagId`,`date`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=29780 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='标签关系表';
+
+CREATE TABLE `daily_report` (
+                                `id` bigint NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+                                `trade_date` date NOT NULL COMMENT '交易日期',
+                                `mid_pct_chg` decimal(10,3) DEFAULT NULL COMMENT '中位数涨跌幅(%)',
+                                `up_amount` int DEFAULT NULL COMMENT '上涨家数',
+                                `down_amount` int DEFAULT NULL COMMENT '下跌家数',
+                                `limit_up_amount` int DEFAULT NULL COMMENT '涨停家数',
+                                `limit_down_amount` int DEFAULT NULL COMMENT '跌停家数',
+                                `limit_up_pct` int DEFAULT NULL COMMENT '封板率',
+                                `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                PRIMARY KEY (`id`),
+                                UNIQUE KEY `uniq_trade` (`trade_date`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='日结数据';

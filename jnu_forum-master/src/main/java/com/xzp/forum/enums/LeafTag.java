@@ -21,11 +21,19 @@ public enum LeafTag {
     //跌幅实体越来越小
     DOWN_ENTITY("DOWN_ENTITY", "跌幅实体越来越小", 8L),
     //阳线
-    UP("UP", "阳线", 9L),
+    UP("UP", "涨幅大于0", 9L),
     //阴线
-    DOWN("DOWN", "阴线", 10L),
+    DOWN("DOWN", "跌幅大于0", 10L),
     //平盘
-    FLAT("FLAT", "平盘", 11L),
+    FLAT("FLAT", "涨幅等于0", 11L),
+
+    ZHANGTING("ZHANGTING", "涨停", 12L),
+
+    DIETING("DIETING", "跌停", 13L),
+
+    TOUCH_ZHANGTING("TOUCH_ZHANGTING", "触涨停", 14L),
+
+
     ;
     private final String code;
     private final String description;

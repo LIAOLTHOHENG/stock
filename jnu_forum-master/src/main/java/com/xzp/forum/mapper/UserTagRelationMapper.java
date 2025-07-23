@@ -1,5 +1,6 @@
 package com.xzp.forum.mapper;
 
+import com.xzp.forum.model.CountTagDTO;
 import com.xzp.forum.model.UserTagDTO;
 import com.xzp.forum.model.UserTagRelation;
 import org.apache.ibatis.annotations.Mapper;
@@ -19,4 +20,7 @@ public interface UserTagRelationMapper {
     List<UserTagDTO> queryByTagIdsAndSymbol(@Param("list") List<Long> tagIds, String symbol);
 
     void batchDelete(@Param("list") List<Long> collect);
+
+    //某天某些标签的统计
+    List<CountTagDTO> queryByTagAndDate(@Param("tagIds") List<Long> tagIds, @Param("date") String date);
 }

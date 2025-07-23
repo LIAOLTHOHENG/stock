@@ -1,9 +1,15 @@
 package com.xzp.forum.service;
 
+import com.xzp.forum.domain.DailyReport;
+import com.xzp.forum.enums.LeafTag;
+import com.xzp.forum.mapper.DailyReportMapper;
 import com.xzp.forum.mapper.StockDailyMapper;
+import com.xzp.forum.mapper.UserTagRelationMapper;
+import com.xzp.forum.model.CountTagDTO;
 import com.xzp.forum.model.StockDaily;
 import com.xzp.forum.model.api.TushareReq;
 import com.xzp.forum.model.api.TushareResp;
+import com.xzp.forum.util.StockLimitUtils;
 import com.xzp.forum.util.StockUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,11 +41,17 @@ public class DailySchedule {
     private RestTemplate restTemplate;
     @Autowired
     private StockDailyMapper stockDailyMapper;
+    @Autowired
+    private DailyReportMapper dailyReportMapper;
+
     private static final String TUSHARE_URL = "http://api.tushare.pro";
     private final DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyyMMdd");
+    @Autowired
+    private UserTagRelationMapper userTagRelationMapper;
 
     /**
      * 每日数据拉取
+     *
      * @param date
      */
     public void getAllStockDaily(String date) {
@@ -85,6 +98,7 @@ public class DailySchedule {
         }
 
     }
+
     private List<StockDaily> buildStockDailyDOList(List<List<Object>> subList) {
         List<StockDaily> stockDailyList = new ArrayList();
         //根据 Fields里面的字段 设置进数据库对象
@@ -113,12 +127,55 @@ public class DailySchedule {
 
     /**
      * 每日数据报告
+     *
      * @param date
      */
     public void runDailyReport(String date) {
         String mid = stockDailyMapper.getMidIncrese(date);
-        System.out.println("中位数涨幅:"+mid);
+        DailyReport dailyReport = new DailyReport();
+        dailyReport.setTradeDate(LocalDate.parse(date, formatter1));
+        dailyReport.setMidPctChg(new BigDecimal(mid));
+
+        int limitUpCount = 0;      // 涨停数
+        int touchLimitUpCount = 0; // 触及涨停但未封死
+
+        List<CountTagDTO> countTagDTOS = userTagRelationMapper.queryByTagAndDate(
+                Arrays.asList(LeafTag.UP.getId(), LeafTag.DOWN.getId(),
+                        LeafTag.ZHANGTING.getId(), LeafTag.DIETING.getId(), LeafTag.TOUCH_ZHANGTING.getId()), date);
+
+        for (CountTagDTO countTagDTO : countTagDTOS) {
+            if (countTagDTO.getTagId() == LeafTag.UP.getId()) {
+                dailyReport.setUpAmount(countTagDTO.getCount());
+            }
+            if (countTagDTO.getTagId() == LeafTag.DOWN.getId()) {
+                dailyReport.setDownAmount(countTagDTO.getCount());
+            }
+            if (countTagDTO.getTagId() == LeafTag.ZHANGTING.getId()) {
+                dailyReport.setLimitUpAmount(countTagDTO.getCount());
+                limitUpCount = countTagDTO.getCount();
+            }
+            if (countTagDTO.getTagId() == LeafTag.DIETING.getId()) {
+                dailyReport.setLimitDownAmount(countTagDTO.getCount());
+            }
+            if (countTagDTO.getTagId() == LeafTag.TOUCH_ZHANGTING.getId() && countTagDTO.getCount() > 0) {
+                touchLimitUpCount = countTagDTO.getCount();
+            }
+        }
+
+        // 计算封板率（涨停数 / 触及涨停数）
+        if (touchLimitUpCount > 0) {
+            BigDecimal limitUpRate = new BigDecimal(limitUpCount)
+                    .divide(new BigDecimal(touchLimitUpCount), 4, BigDecimal.ROUND_HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+            dailyReport.setLimitUpPct(limitUpRate.intValue());
+        } else {
+            dailyReport.setLimitUpPct(BigDecimal.ZERO.intValue());
+        }
+
+        dailyReportMapper.insert(dailyReport);
+        System.out.println("中位数涨幅:" + mid);
     }
+
 
     @PostConstruct
     public void init() {

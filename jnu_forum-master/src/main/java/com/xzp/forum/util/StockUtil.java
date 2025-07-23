@@ -44,4 +44,5 @@ public class StockUtil {
         // 北交所：8开头
         return tsCode.startsWith("8");
     }
+
 }

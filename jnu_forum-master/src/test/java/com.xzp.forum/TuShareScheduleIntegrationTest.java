@@ -80,8 +80,8 @@ class TuShareScheduleIntegrationTest {
 
     @Test
     void task() {
-        dailySchedule.getAllStockDaily("20250722");
-        tagTask.setUserTag(null, LocalDate.of(2025, 7, 22));
-        dailySchedule.runDailyReport("20250722");
+        dailySchedule.getAllStockDaily("20250723");
+        tagTask.setUserTag(null, LocalDate.of(2025, 7, 23));
+        dailySchedule.runDailyReport("20250723");
     }
 }
