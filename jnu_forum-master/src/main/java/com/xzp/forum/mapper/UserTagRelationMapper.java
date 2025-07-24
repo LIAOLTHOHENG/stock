@@ -6,6 +6,7 @@ import com.xzp.forum.model.UserTagRelation;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Mapper
@@ -22,5 +23,5 @@ public interface UserTagRelationMapper {
     void batchDelete(@Param("list") List<Long> collect);
 
     //某天某些标签的统计
-    List<CountTagDTO> queryByTagAndDate(@Param("tagIds") List<Long> tagIds, @Param("date") String date);
+    List<CountTagDTO> queryByTagAndDate(@Param("tagIds") List<Long> tagIds, @Param("date") LocalDate date);
 }

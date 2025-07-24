@@ -141,7 +141,7 @@ public class DailySchedule {
 
         List<CountTagDTO> countTagDTOS = userTagRelationMapper.queryByTagAndDate(
                 Arrays.asList(LeafTag.UP.getId(), LeafTag.DOWN.getId(),
-                        LeafTag.ZHANGTING.getId(), LeafTag.DIETING.getId(), LeafTag.TOUCH_ZHANGTING.getId()), date);
+                        LeafTag.ZHANGTING.getId(), LeafTag.DIETING.getId(), LeafTag.TOUCH_ZHANGTING.getId()), LocalDate.parse(date, formatter1));
 
         for (CountTagDTO countTagDTO : countTagDTOS) {
             if (countTagDTO.getTagId() == LeafTag.UP.getId()) {
@@ -162,10 +162,10 @@ public class DailySchedule {
             }
         }
 
-        // 计算封板率（涨停数 / 触及涨停数）
-        if (touchLimitUpCount > 0) {
+        // 计算封板率（涨停数 / 触及涨停数+涨停数）
+        if (touchLimitUpCount > 0 || limitUpCount > 0) {
             BigDecimal limitUpRate = new BigDecimal(limitUpCount)
-                    .divide(new BigDecimal(touchLimitUpCount), 4, BigDecimal.ROUND_HALF_UP)
+                    .divide(new BigDecimal(touchLimitUpCount + limitUpCount), 4, BigDecimal.ROUND_HALF_UP)
                     .multiply(BigDecimal.valueOf(100));
             dailyReport.setLimitUpPct(limitUpRate.intValue());
         } else {

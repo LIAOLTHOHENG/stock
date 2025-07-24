@@ -80,8 +80,40 @@ class TuShareScheduleIntegrationTest {
 
     @Test
     void task() {
-        dailySchedule.getAllStockDaily("20250723");
-        tagTask.setUserTag(null, LocalDate.of(2025, 7, 23));
+        //dailySchedule.getAllStockDaily("20250723");
+        //tagTask.setUserTag(null, LocalDate.of(2025, 7, 23));
         dailySchedule.runDailyReport("20250723");
     }
+
+    @Test
+    void task3() {
+        // 重跑7月2日到7月23日的交易日的标签数据 & 补齐7月2号到22号的日报
+        LocalDate startDate = LocalDate.of(2025, 7, 2);
+        LocalDate endDate = LocalDate.of(2025, 7, 23);
+        LocalDate currentDate = startDate;
+
+        while (!currentDate.isAfter(endDate)) {
+            // 只处理工作日（周一至周五）
+            if (currentDate.getDayOfWeek().getValue() <= 5) {
+                String tradeDate = currentDate.format(DateTimeFormatter.BASIC_ISO_DATE);
+                System.out.println("正在处理日报：" + tradeDate);
+
+                try {
+                    dailySchedule.runDailyReport(tradeDate);
+                } catch (Exception e) {
+                    System.err.println("处理日报日期 " + tradeDate + " 时发生异常：" + e.getMessage());
+                    e.printStackTrace();
+                }
+
+                // 防止请求过频，适当休眠
+                try {
+                    Thread.sleep(150);
+                } catch (InterruptedException ignored) {}
+            }
+
+            // 移动到下一天
+            currentDate = currentDate.plusDays(1);
+        }
+    }
+
 }

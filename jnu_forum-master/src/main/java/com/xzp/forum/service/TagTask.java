@@ -185,6 +185,10 @@ public class TagTask {
 
         //涨跌幅
         StockDaily stockDaily = stockDailyMapper.selectByTsCodeAndDate(stock.getTsCode(), date);
+        //st退市股
+        if (stockDaily == null) {
+            return new ArrayList();
+        }
         if (stockDaily != null && stockDaily.getChange().compareTo(BigDecimal.ZERO) > 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP.getCode(), date));
         } else if (stockDaily != null && stockDaily.getChange().compareTo(BigDecimal.ZERO) < 0) {
@@ -194,12 +198,12 @@ public class TagTask {
         }
 
         //涨跌停
-        if(StockLimitUtils.isLimitUp(stockDaily)){
+        if (StockLimitUtils.isLimitUp(stockDaily)) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.ZHANGTING.getCode(), date));
-        }else if(StockLimitUtils.isLimitDown(stockDaily)){
-             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.DIETING.getCode(), date));
+        } else if (StockLimitUtils.isLimitDown(stockDaily)) {
+            resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.DIETING.getCode(), date));
         }
-        if(StockLimitUtils.touchLimitUp(stockDaily)){
+        if (StockLimitUtils.touchLimitUp(stockDaily)) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.TOUCH_ZHANGTING.getCode(), date));
         }
 

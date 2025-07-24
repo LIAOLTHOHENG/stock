@@ -45,7 +45,7 @@
         AND utr.symbol = #{symbol}
     </select>
     <select id="queryByTagAndDate" resultType="com.xzp.forum.model.CountTagDTO">
-         SELECT utr.FTagId, COUNT(utr.FTagId) AS count
+         SELECT utr.FTagId tagId, COUNT(utr.FTagId) AS count
          FROM user_tag_relation utr
          WHERE utr.FTagId IN
          <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">

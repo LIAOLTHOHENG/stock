@@ -45,7 +45,7 @@ CREATE TABLE `stock_daily` (
 
 CREATE TABLE `user_tag_relation` (
                                      `id` bigint NOT NULL AUTO_INCREMENT COMMENT '自增主键',
-                                     `symbol` bigint NOT NULL COMMENT '代码',
+                                     `symbol` varchar(20) NOT NULL COMMENT '代码',
                                      `FTagId` bigint NOT NULL COMMENT '标签ID',
                                      `FCreateTime` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
                                      `date` date NOT NULL COMMENT '交易日期',
