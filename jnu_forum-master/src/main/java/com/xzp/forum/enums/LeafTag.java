@@ -20,11 +20,11 @@ public enum LeafTag {
     DOWN_BOUNCE("DOWN_BOUNCE", "阴线+孕线", 7L),
     //跌幅实体越来越小
     DOWN_ENTITY("DOWN_ENTITY", "跌幅实体越来越小", 8L),
-    //阳线
+    //涨幅大于0
     UP("UP", "涨幅大于0", 9L),
-    //阴线
+    //跌幅大于0
     DOWN("DOWN", "跌幅大于0", 10L),
-    //平盘
+    //涨幅等于0
     FLAT("FLAT", "涨幅等于0", 11L),
 
     ZHANGTING("ZHANGTING", "涨停", 12L),
@@ -32,6 +32,11 @@ public enum LeafTag {
     DIETING("DIETING", "跌停", 13L),
 
     TOUCH_ZHANGTING("TOUCH_ZHANGTING", "触涨停", 14L),
+
+    YANGXIAN("YANGXIAN", "阳线", 15L),
+    YINXIAN("YINXIAN", "阴线", 16L),
+    //
+    YANGXIAN_GUXING("YANGXIAN_GUXING", "阳线且孤独", 17L),
 
 
     ;

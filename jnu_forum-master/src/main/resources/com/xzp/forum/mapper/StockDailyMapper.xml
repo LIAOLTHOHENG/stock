@@ -128,6 +128,23 @@
                  AS sd
         WHERE sd.row_num IN (FLOOR((sd.total_count + 1) / 2), FLOOR((sd.total_count + 2) / 2))
     </select>
+    <select id="selectByTsCodeAndDateRage" resultType="com.xzp.forum.model.StockDaily">
+         SELECT
+        <include refid="selectFields"/>
+             FROM
+        <include refid="tablename"/>
+                 WHERE ts_code = #{tsCode}
+             <if test="start != null">
+                 AND trade_date >= #{start}
+             </if>
+             <if test="end != null">
+                 AND trade_date <![CDATA[ <= ]]> #{end}
+             </if>
+                 ORDER BY trade_date desc
+                 <if test="count != null">
+                     limit #{count}
+                 </if>
+    </select>
 
 </mapper>
 

@@ -76,7 +76,7 @@ public class TagTask {
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.initialize();
         threadPoolTaskExecutor = executor;
-        for(LeafTag tag : LeafTag.values()){
+        for (LeafTag tag : LeafTag.values()) {
             tagMap.put(tag.getCode(), tag.getId());
         }
     }
@@ -121,7 +121,7 @@ public class TagTask {
                             //非遍历用户即可得到的判断
                             allNowList.addAll(nowList);
                         } catch (Exception ex) {
-                            System.out.println("error"+user.getSymbol());
+                            System.out.println("error" + user.getSymbol());
                             ex.printStackTrace();
                         } finally {
                             countDownLatch.countDown();
@@ -175,7 +175,7 @@ public class TagTask {
     }
 
     /**
-     * 处理所有用户
+     * 处理单个 打标
      *
      * @param stock
      * @return
@@ -187,14 +187,28 @@ public class TagTask {
         StockDaily stockDaily = stockDailyMapper.selectByTsCodeAndDate(stock.getTsCode(), date);
         //st退市股
         if (stockDaily == null) {
-            return new ArrayList();
+            return new ArrayList<>();
         }
-        if (stockDaily != null && stockDaily.getChange().compareTo(BigDecimal.ZERO) > 0) {
+        //涨幅
+        if (stockDaily.getChange().compareTo(BigDecimal.ZERO) > 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP.getCode(), date));
-        } else if (stockDaily != null && stockDaily.getChange().compareTo(BigDecimal.ZERO) < 0) {
+        } else if (stockDaily.getChange().compareTo(BigDecimal.ZERO) < 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.DOWN.getCode(), date));
         } else {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.FLAT.getCode(), date));
+        }
+        //振幅
+        BigDecimal todayChange = stockDaily.getClose().subtract(stockDaily.getOpen());
+        if (todayChange.compareTo(BigDecimal.ZERO) > 0) {
+            resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN.getCode(), date));
+
+            List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, null, 2);
+            StockDaily yesterday = sortedList.get(1);
+            if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0) {
+                resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN_GUXING.getCode(), date));
+            }
+        } else if (todayChange.compareTo(BigDecimal.ZERO) < 0) {
+            resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YINXIAN.getCode(), date));
         }
 
         //涨跌停
@@ -208,89 +222,6 @@ public class TagTask {
         }
 
         return resultList;
-    }
-
-    /**
-     * 是否缩量至平稳
-     *
-     * @param sortedList
-     * @return
-     */
-    private boolean stable(List<StockDaily> sortedList) {
-        if (sortedList == null || sortedList.size() < 10) return false; // 扩大观察窗口
-
-        // 参数配置
-        BigDecimal VOLUME_DROP_RATIO = new BigDecimal("0.5"); // 缩量比例阈值（50%）
-        BigDecimal RECENT_CHG_LIMIT = new BigDecimal("2");    // 最近一日涨跌幅限制
-        BigDecimal STABLE_DAYS = new BigDecimal(3);           // 盘整持续天数要求
-
-        try {
-            // 1. 寻找放量峰值（取历史最大成交量）
-            BigDecimal maxVol = sortedList.stream()
-                    .map(StockDaily::getVol)
-                    .max(Comparator.naturalOrder())
-                    .orElse(BigDecimal.ZERO);
-
-            // 2. 定位缩量起始点（成交量下降超过50%且持续）
-            int stableStartIndex = -1;
-            for (int i = 1; i < sortedList.size(); i++) {
-                BigDecimal currentVol = sortedList.get(i).getVol();
-                if (currentVol.compareTo(maxVol.multiply(VOLUME_DROP_RATIO)) < 0) {
-                    stableStartIndex = i;
-                    break;
-                }
-            }
-            // 在定位缩量起始点后添加（检查是否持续缩量）
-            for (int i = stableStartIndex; i < sortedList.size(); i++) {
-                BigDecimal vol = sortedList.get(i).getVol();
-                if (vol.compareTo(maxVol.multiply(VOLUME_DROP_RATIO)) > 0) {
-                    return false; // 缩量后再次放量则不符合
-                }
-            }
-
-            // 未找到有效缩量点
-            if (stableStartIndex == -1 || (sortedList.size() - stableStartIndex) < STABLE_DAYS.intValue()) {
-                return false;
-            }
-
-            // 3. 检查盘整阶段特征（最后5日）
-            List<StockDaily> stablePhase = sortedList.subList(
-                    Math.max(stableStartIndex, sortedList.size() - STABLE_DAYS.intValue()),
-                    sortedList.size()
-            );
-
-            // 3.1 量能稳定性检查（成交量波动率<20%）
-            BigDecimal avgVol = stablePhase.stream()
-                    .map(StockDaily::getVol)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add)
-                    .divide(STABLE_DAYS, 4, RoundingMode.HALF_UP);
-
-            BigDecimal volVariance = stablePhase.stream()
-                    .map(d -> d.getVol().subtract(avgVol).pow(2))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal volStd = new BigDecimal(Math.sqrt(volVariance.divide(STABLE_DAYS, 8, RoundingMode.HALF_UP).doubleValue()));
-
-            // 4. 价格稳定性检查（收盘价标准差<1%）
-            BigDecimal avgClose = stablePhase.stream()
-                    .map(StockDaily::getClose)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add)
-                    .divide(STABLE_DAYS, 4, RoundingMode.HALF_UP);
-
-            BigDecimal priceVariance = stablePhase.stream()
-                    .map(d -> d.getClose().subtract(avgClose).pow(2))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal priceStd = new BigDecimal(Math.sqrt(priceVariance.divide(STABLE_DAYS, 8, RoundingMode.HALF_UP).doubleValue()));
-
-            // 5. 最终交易日限制（最后一日涨跌幅）
-            StockDaily lastDay = sortedList.get(sortedList.size() - 1);
-            boolean lastDayValid = lastDay.getPctChg().abs().compareTo(RECENT_CHG_LIMIT) <= 0;
-
-            return volStd.compareTo(avgVol.multiply(new BigDecimal("0.2"))) < 0 && // 成交量波动<20%
-                    priceStd.compareTo(avgClose.multiply(new BigDecimal("0.015"))) < 0 && // 价格波动<1%
-                    lastDayValid;
-        } catch (Exception e) {
-            return false;
-        }
     }
 
 

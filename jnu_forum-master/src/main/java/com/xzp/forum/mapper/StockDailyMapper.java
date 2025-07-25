@@ -34,6 +34,8 @@ public interface StockDailyMapper {
     // 按股票代码和日期查询
     StockDaily selectByTsCodeAndDate(@Param("tsCode") String tsCode, @Param("date") LocalDate date);
 
+    List<StockDaily> selectByTsCodeAndDateRage(@Param("tsCode") String tsCode, @Param("start") LocalDate date,
+                                               @Param("end") LocalDate end,@Param("count") Integer count);
     // 查询最新记录
     StockDaily selectLatestByTsCode(String tsCode);
 
