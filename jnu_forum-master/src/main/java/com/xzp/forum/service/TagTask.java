@@ -204,7 +204,7 @@ public class TagTask {
 
             List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, null, 2);
             StockDaily yesterday = sortedList.get(1);
-            if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0) {
+            if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 && stockDaily.getClose().compareTo(yesterday.getClose()) <= 0) {
                 resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN_GUXING.getCode(), date));
             }
         } else if (todayChange.compareTo(BigDecimal.ZERO) < 0) {
