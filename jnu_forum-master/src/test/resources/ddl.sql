@@ -1,4 +1,4 @@
-CREATE DATABASE `jnu_forum` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+CREATE DATABASE `jnu_forum`  DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
 
   -- jnu_forum.stock_basic definition
 
@@ -49,10 +49,10 @@ CREATE TABLE `user_tag_relation` (
                                      `FTagId` bigint NOT NULL COMMENT '标签ID',
                                      `FCreateTime` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
                                      `date` date NOT NULL COMMENT '交易日期',
-                                     `description` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+                                     `description` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
                                      PRIMARY KEY (`id`) USING BTREE,
                                      UNIQUE KEY `user_tag_relation_symbol_IDX` (`symbol`,`FTagId`,`date`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=29780 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='标签关系表';
+) ENGINE=InnoDB AUTO_INCREMENT=29780 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='标签关系表';
 
 CREATE TABLE `daily_report` (
                                 `id` bigint NOT NULL AUTO_INCREMENT COMMENT '自增主键',
