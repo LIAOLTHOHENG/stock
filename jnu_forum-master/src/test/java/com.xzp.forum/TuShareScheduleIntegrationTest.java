@@ -25,6 +25,38 @@ class TuShareScheduleIntegrationTest {
     void insertInfo() {
         eastMoneyCrawler.init();
     }
+    @Test
+    void forNewEnv() {
+
+        // 重跑7月2日到7月25日的交易日的标签数据
+        LocalDate startDate = LocalDate.of(2025, 7, 2);
+        LocalDate endDate = LocalDate.of(2025, 7, 25);
+        LocalDate currentDate = startDate;
+
+        while (!currentDate.isAfter(endDate)) {
+            // 只处理工作日（周一至周五）
+            if (currentDate.getDayOfWeek().getValue() <= 5) {
+
+                try {
+                    String tradeDate = currentDate.format(DateTimeFormatter.BASIC_ISO_DATE);
+                    dailySchedule.getAllStockDaily(tradeDate);
+                    tagTask.setUserTag(null, currentDate);
+                    dailySchedule.runDailyReport(tradeDate);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                // 防止请求过频，适当休眠
+                try {
+                    Thread.sleep(150);
+                } catch (InterruptedException ignored) {}
+            }
+
+            // 移动到下一天
+            currentDate = currentDate.plusDays(1);
+        }
+    }
+
 
     @Resource
     TagTask tagTask;
