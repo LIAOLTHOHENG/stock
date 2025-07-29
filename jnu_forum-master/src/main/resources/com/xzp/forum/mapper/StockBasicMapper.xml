@@ -12,7 +12,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        ts_code, symbol, name, industry, area
+        ts_code, symbol, name, industry, area, totalMarketCap, floatMarketCap
     </sql>
 
     <insert id="insert" parameterType="com.xzp.forum.model.StockBasic">
@@ -32,12 +32,14 @@
         (<include refid="Base_Column_List"/>)
         VALUES
             <foreach collection="list" item="item" separator=",">
-                (#{item.tsCode}, #{item.symbol}, #{item.name}, #{item.industry}, #{item.area})
+                (#{item.tsCode}, #{item.symbol}, #{item.name}, #{item.industry}, #{item.area}, #{item.totalMarketCap}, #{item.floatMarketCap})
             </foreach>
         ON DUPLICATE KEY UPDATE
         name = VALUES(name),
         industry = VALUES(industry),
-        area = VALUES(area)
+        area = VALUES(area),
+        totalMarketCap = VALUES(totalMarketCap),
+        floatMarketCap = VALUES(floatMarketCap)
     </insert>
 
     <delete id="deleteByTsCode" parameterType="java.lang.String">

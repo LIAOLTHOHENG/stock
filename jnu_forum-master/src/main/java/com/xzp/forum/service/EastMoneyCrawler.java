@@ -59,7 +59,7 @@ public class EastMoneyCrawler {
                 + "&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281"
                 + "&fltt=2&invt=2&fid=f3"
                 + "&fs=m:0+t:6,m:0+t:13,m:0+t:80,m:1+t:2,m:1+t:23"
-                + "&fields=f12,f14,f100,f104,f106,f107,f140,f152,f228";
+                + "&fields=f12,f14,f100,f20,f21,f22,f23,f107,f140,f152,f228";
 
         String jsonStr = Jsoup.connect(apiUrl)
                 .ignoreContentType(true)
@@ -78,8 +78,16 @@ public class EastMoneyCrawler {
             }
             // 必填字段解析
             stock.symbol = item.getString("f12");  // 股票代码
-            stock.name = item.getString("f14");    // 股票名称
-
+            stock.name = item.getString("f14");
+            try {
+                Double y = item.getDouble("f20");
+                Double x = item.getDouble("f21");
+                stock.setTotalMarketCap(y);
+                stock.setFloatMarketCap(x);
+            }catch (Exception e){
+                System.out.println("获取市值失败"+stock.symbol+item.getString("f20")+";"+item.getString("f21"));
+            }
+            // 股票名称
             // 处理可能缺失的字段
             stock.industry = item.getString("f100") != null ?
                     item.getString("f100") : "未知行业";

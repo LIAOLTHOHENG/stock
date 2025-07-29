@@ -16,4 +16,6 @@ public class StockBasic {
     public String name;
     public String industry;
     public String area;
+    private Double totalMarketCap;   // 总市值
+    private Double floatMarketCap;   // 流通市值
 }
