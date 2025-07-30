@@ -41,4 +41,6 @@ public interface StockDailyMapper {
 
     //中位数涨幅
     String getMidIncrese(String date);
+
+    LocalDate getmaxDate();
 }

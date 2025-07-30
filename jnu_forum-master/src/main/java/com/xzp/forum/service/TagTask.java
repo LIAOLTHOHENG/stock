@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -87,7 +88,20 @@ public class TagTask {
     public void setUserTag(String symbol, LocalDate date) {
         try {
             System.out.println("TagTaskstart");
+            if (date == null) {
+                LocalDate maxDate =userTagRelationMapper.getMaxDate();
+                LocalDate now = LocalDate.now();
+                //从maxdate到now的每一天都补全
+                for (LocalDate i = maxDate.plusDays(1); i.isBefore(now.plusDays(1)); i = i.plusDays(1)) {
+                    //剔除工作日 法定节假日
+                    if (i.getDayOfWeek().getValue()<=5) {
+                        setUserTag(symbol,i);
+                    }
+                }
+                return;
+            }
             dealTagByAll(symbol, date);
+
         } finally {
             System.out.println("TagTaskend");
         }

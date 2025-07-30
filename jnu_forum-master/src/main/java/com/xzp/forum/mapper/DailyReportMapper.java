@@ -4,6 +4,8 @@ import com.xzp.forum.domain.DailyReport;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.time.LocalDate;
+
 /**
 * @author Administrator
 * @description 针对表【daily_report(日结数据)】的数据库操作Mapper
@@ -13,6 +15,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface DailyReportMapper extends BaseMapper<DailyReport> {
 
+    LocalDate getmaxDate();
 }
 
 

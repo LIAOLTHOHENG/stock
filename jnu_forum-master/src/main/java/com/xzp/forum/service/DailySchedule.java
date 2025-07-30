@@ -56,7 +56,16 @@ public class DailySchedule {
      */
     public void getAllStockDaily(String date) {
         if (date == null) {
-            date = LocalDate.now().format(formatter1);
+            LocalDate maxDate =stockDailyMapper.getmaxDate();
+            LocalDate now = LocalDate.now();
+            //从maxdate到now的每一天都补全
+            for (LocalDate i = maxDate.plusDays(1); i.isBefore(now.plusDays(1)); i = i.plusDays(1)) {
+                //剔除工作日 法定节假日
+                if (i.getDayOfWeek().getValue()<=5) {
+                    getAllStockDaily(i.format(DateTimeFormatter.BASIC_ISO_DATE));
+                }
+            }
+            return;
         }
         String method = "daily";
         TushareReq tushareReq = new TushareReq();
@@ -131,6 +140,19 @@ public class DailySchedule {
      * @param date
      */
     public void runDailyReport(String date) {
+        if (date == null) {
+            LocalDate maxDate =dailyReportMapper.getmaxDate();
+            LocalDate now = LocalDate.now();
+            //从maxdate到now的每一天都补全
+            for (LocalDate i = maxDate.plusDays(1); i.isBefore(now.plusDays(1)); i = i.plusDays(1)) {
+                //剔除工作日 法定节假日
+                if (i.getDayOfWeek().getValue()<=5) {
+                    runDailyReport(i.format(DateTimeFormatter.BASIC_ISO_DATE));
+                }
+            }
+            return;
+        }
+
         String mid = stockDailyMapper.getMidIncrese(date);
         DailyReport dailyReport = new DailyReport();
         dailyReport.setTradeDate(LocalDate.parse(date, formatter1));

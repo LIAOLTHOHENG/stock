@@ -20,4 +20,8 @@
         id,trade_date,mid_pct_chg,up_amount,down_amount,limit_up_amount,
         limit_down_amount,limit_up_pct,create_time
     </sql>
+
+    <select id="getmaxDate" resultType="java.time.LocalDate">
+        SELECT max(trade_date) FROM daily_report
+    </select>
 </mapper>

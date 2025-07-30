@@ -146,5 +146,10 @@
                  </if>
     </select>
 
+    <select id="getmaxDate" resultType="java.time.LocalDate">
+        SELECT max(trade_date) AS maxDate
+        FROM stock_daily
+    </select>
+
 </mapper>
 

@@ -24,4 +24,6 @@ public interface UserTagRelationMapper {
 
     //某天某些标签的统计
     List<CountTagDTO> queryByTagAndDate(@Param("tagIds") List<Long> tagIds, @Param("date") LocalDate date);
+
+    LocalDate getMaxDate();
 }
