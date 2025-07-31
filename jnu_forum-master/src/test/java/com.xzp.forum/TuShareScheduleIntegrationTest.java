@@ -21,6 +21,17 @@ class TuShareScheduleIntegrationTest {
     private EastMoneyCrawler eastMoneyCrawler;
 
     /**
+     * 日常任务
+     */
+    @Test
+    void normalTask() {
+        eastMoneyCrawler.init();
+        dailySchedule.getAllStockDaily(null);
+        tagTask.setUserTag(null, null, null);
+        dailySchedule.runDailyReport(null);
+    }
+
+    /**
      * 基础信息
      */
     @Test
@@ -28,12 +39,22 @@ class TuShareScheduleIntegrationTest {
         eastMoneyCrawler.init();
     }
 
+    /**
+     * 打标单测
+     */
+    @Test
+    void tag() {
+        tagTask.setUserTag(null, LocalDate.of(2025, 7, 30), null);
+    }
+
+    /**
+     * 新环境初始化
+     */
     @Test
     void forNewEnv() {
-
         // 重跑7月2日到7月25日的交易日的标签数据
         LocalDate startDate = LocalDate.of(2025, 7, 2);
-        LocalDate endDate = LocalDate.of(2025, 7, 25);
+        LocalDate endDate = LocalDate.now();
         LocalDate currentDate = startDate;
 
         while (!currentDate.isAfter(endDate)) {
@@ -48,35 +69,18 @@ class TuShareScheduleIntegrationTest {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
                 // 防止请求过频，适当休眠
                 try {
                     Thread.sleep(150);
                 } catch (InterruptedException ignored) {
                 }
             }
-
             // 移动到下一天
             currentDate = currentDate.plusDays(1);
         }
     }
-
-
     @Resource
     TagTask tagTask;
-
-    @Test
-    void tag() {
-        tagTask.setUserTag(null, LocalDate.of(2025, 7, 30), null);
-    }
-
-    @Test
-    void task() {
-        eastMoneyCrawler.init();
-        dailySchedule.getAllStockDaily(null);
-        tagTask.setUserTag(null, null, null);
-        dailySchedule.runDailyReport(null);
-    }
 
     @Test
     void reRunTag() {
@@ -94,38 +98,6 @@ class TuShareScheduleIntegrationTest {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-                // 防止请求过频，适当休眠
-                try {
-                    Thread.sleep(150);
-                } catch (InterruptedException ignored) {
-                }
-            }
-
-            // 移动到下一天
-            currentDate = currentDate.plusDays(1);
-        }
-    }
-
-
-    @Test
-    void reRunReport() {
-        // 重跑7月2日到7月23日的交易日的标签数据 & 补齐7月2号到22号的日报
-        LocalDate startDate = LocalDate.of(2025, 7, 2);
-        LocalDate endDate = LocalDate.of(2025, 7, 25);
-        LocalDate currentDate = startDate;
-
-        while (!currentDate.isAfter(endDate)) {
-            // 只处理工作日（周一至周五）
-            if (currentDate.getDayOfWeek().getValue() <= 5) {
-                String tradeDate = currentDate.format(DateTimeFormatter.BASIC_ISO_DATE);
-
-                try {
-                    dailySchedule.runDailyReport(tradeDate);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
                 // 防止请求过频，适当休眠
                 try {
                     Thread.sleep(150);

@@ -40,7 +40,6 @@ public enum LeafTag {
 
     YINXIAN_GUXING("YINXIAN_GUXING", "阴线且孤独", 18L),
 
-
     ;
     private final String code;
     private final String description;
