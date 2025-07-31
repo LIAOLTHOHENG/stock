@@ -85,22 +85,22 @@ public class TagTask {
     /**
      * 用户打标
      */
-    public void setUserTag(String symbol, LocalDate date) {
+    public void setUserTag(String symbol, LocalDate date, List<LeafTag> tags) {
         try {
             System.out.println("TagTaskstart");
             if (date == null) {
-                LocalDate maxDate =userTagRelationMapper.getMaxDate();
+                LocalDate maxDate = userTagRelationMapper.getMaxDate();
                 LocalDate now = LocalDate.now();
                 //从maxdate到now的每一天都补全
                 for (LocalDate i = maxDate.plusDays(1); i.isBefore(now.plusDays(1)); i = i.plusDays(1)) {
                     //剔除工作日 法定节假日
-                    if (i.getDayOfWeek().getValue()<=5) {
-                        setUserTag(symbol,i);
+                    if (i.getDayOfWeek().getValue() <= 5) {
+                        setUserTag(symbol, i, tags);
                     }
                 }
                 return;
             }
-            dealTagByAll(symbol, date);
+            dealTagByAll(symbol, date, tags);
 
         } finally {
             System.out.println("TagTaskend");
@@ -111,7 +111,7 @@ public class TagTask {
     /**
      * 所有用户口径
      */
-    private void dealTagByAll(String symbol, LocalDate date) {
+    private void dealTagByAll(String symbol, LocalDate date, List<LeafTag> tags) {
         List<UserTagDTO> allNowList = Collections.synchronizedList(new ArrayList<>());
         Integer total = stockBasicMapper.count(symbol);
         //防止深分页
@@ -126,6 +126,7 @@ public class TagTask {
             CountDownLatch countDownLatch = new CountDownLatch(stockList.size());
             lastSymbol = stockList.get(stockList.size() - 1).getSymbol();
             for (StockBasic user : stockList) {
+                List<UserTagDTO> finalAllNowList = allNowList;
                 threadPoolTaskExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
@@ -133,7 +134,7 @@ public class TagTask {
                             //跑出当前标签
                             List<UserTagDTO> nowList = runAllStockTaskCore(user, date);
                             //非遍历用户即可得到的判断
-                            allNowList.addAll(nowList);
+                            finalAllNowList.addAll(nowList);
                         } catch (Exception ex) {
                             System.out.println("error" + user.getSymbol());
                             ex.printStackTrace();
@@ -149,6 +150,10 @@ public class TagTask {
                 throw new RuntimeException(e);
             }
 
+        }
+
+        if (!CollectionUtils.isEmpty(tags) && !CollectionUtils.isEmpty(allNowList)) {
+            allNowList = allNowList.stream().filter(x -> tags.contains(LeafTag.fromId(x.getFtagId()))).collect(Collectors.toList());
         }
         dealData(allNowList, symbol, date);
     }
@@ -198,21 +203,21 @@ public class TagTask {
         List<UserTagDTO> resultList = new ArrayList<>();
 
         //涨跌幅
-        StockDaily stockDaily = stockDailyMapper.selectByTsCodeAndDate(stock.getTsCode(), date);
+        StockDaily today = stockDailyMapper.selectByTsCodeAndDate(stock.getTsCode(), date);
         //st退市股
-        if (stockDaily == null) {
+        if (today == null) {
             return new ArrayList<>();
         }
         //涨幅
-        if (stockDaily.getChange().compareTo(BigDecimal.ZERO) > 0) {
+        if (today.getChange().compareTo(BigDecimal.ZERO) > 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP.getCode(), date));
-        } else if (stockDaily.getChange().compareTo(BigDecimal.ZERO) < 0) {
+        } else if (today.getChange().compareTo(BigDecimal.ZERO) < 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.DOWN.getCode(), date));
         } else {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.FLAT.getCode(), date));
         }
         //振幅
-        BigDecimal todayChange = stockDaily.getClose().subtract(stockDaily.getOpen());
+        BigDecimal todayChange = today.getClose().subtract(today.getOpen());
         if (todayChange.compareTo(BigDecimal.ZERO) > 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN.getCode(), date));
 
@@ -220,21 +225,29 @@ public class TagTask {
             //初始化数据兼容处理
             if (sortedList.size() == 2) {
                 StockDaily yesterday = sortedList.get(1);
-                if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 && stockDaily.getClose().compareTo(yesterday.getClose()) <= 0) {
+                if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 && today.getClose().compareTo(yesterday.getClose()) <= 0) {
                     resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN_GUXING.getCode(), date));
                 }
             }
         } else if (todayChange.compareTo(BigDecimal.ZERO) < 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YINXIAN.getCode(), date));
+            List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, date, 2);
+            //初始化数据兼容处理
+            if (sortedList.size() == 2) {
+                StockDaily yesterday = sortedList.get(1);
+                if (yesterday.getClose().compareTo(yesterday.getOpen()) > 0 && today.getClose().compareTo(yesterday.getClose()) >= 0) {
+                    resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YINXIAN_GUXING.getCode(), date));
+                }
+            }
         }
 
         //涨跌停
-        if (StockLimitUtils.isLimitUp(stockDaily)) {
+        if (StockLimitUtils.isLimitUp(today)) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.ZHANGTING.getCode(), date));
-        } else if (StockLimitUtils.isLimitDown(stockDaily)) {
+        } else if (StockLimitUtils.isLimitDown(today)) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.DIETING.getCode(), date));
         }
-        if (StockLimitUtils.touchLimitUp(stockDaily)) {
+        if (StockLimitUtils.touchLimitUp(today)) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.TOUCH_ZHANGTING.getCode(), date));
         }
 

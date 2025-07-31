@@ -1,5 +1,6 @@
 package com.xzp.forum;
 
+import com.xzp.forum.enums.LeafTag;
 import com.xzp.forum.service.EastMoneyCrawler;
 import com.xzp.forum.service.TagTask;
 import com.xzp.forum.service.DailySchedule;
@@ -9,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 
 @SpringBootTest(classes = JnuForumApplication.class)
 class TuShareScheduleIntegrationTest {
@@ -25,6 +27,7 @@ class TuShareScheduleIntegrationTest {
     void insertInfo() {
         eastMoneyCrawler.init();
     }
+
     @Test
     void forNewEnv() {
 
@@ -40,7 +43,7 @@ class TuShareScheduleIntegrationTest {
                 try {
                     String tradeDate = currentDate.format(DateTimeFormatter.BASIC_ISO_DATE);
                     dailySchedule.getAllStockDaily(tradeDate);
-                    tagTask.setUserTag(null, currentDate);
+                    tagTask.setUserTag(null, currentDate, null);
                     dailySchedule.runDailyReport(tradeDate);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -49,7 +52,8 @@ class TuShareScheduleIntegrationTest {
                 // 防止请求过频，适当休眠
                 try {
                     Thread.sleep(150);
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                }
             }
 
             // 移动到下一天
@@ -63,14 +67,14 @@ class TuShareScheduleIntegrationTest {
 
     @Test
     void tag() {
-        tagTask.setUserTag(null, LocalDate.of(2025, 7, 30));
+        tagTask.setUserTag(null, LocalDate.of(2025, 7, 30), null);
     }
 
     @Test
     void task() {
         eastMoneyCrawler.init();
         dailySchedule.getAllStockDaily(null);
-        tagTask.setUserTag(null, null);
+        tagTask.setUserTag(null, null, null);
         dailySchedule.runDailyReport(null);
     }
 
@@ -78,7 +82,7 @@ class TuShareScheduleIntegrationTest {
     void reRunTag() {
         // 重跑7月2日到7月25日的交易日的标签数据
         LocalDate startDate = LocalDate.of(2025, 7, 2);
-        LocalDate endDate = LocalDate.of(2025, 7, 25);
+        LocalDate endDate = LocalDate.of(2025, 7, 31);
         LocalDate currentDate = startDate;
 
         while (!currentDate.isAfter(endDate)) {
@@ -86,7 +90,7 @@ class TuShareScheduleIntegrationTest {
             if (currentDate.getDayOfWeek().getValue() <= 5) {
 
                 try {
-                    tagTask.setUserTag(null, currentDate);
+                    tagTask.setUserTag(null, currentDate, Arrays.asList(LeafTag.YINXIAN_GUXING));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -94,7 +98,8 @@ class TuShareScheduleIntegrationTest {
                 // 防止请求过频，适当休眠
                 try {
                     Thread.sleep(150);
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                }
             }
 
             // 移动到下一天
@@ -124,7 +129,8 @@ class TuShareScheduleIntegrationTest {
                 // 防止请求过频，适当休眠
                 try {
                     Thread.sleep(150);
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                }
             }
 
             // 移动到下一天
