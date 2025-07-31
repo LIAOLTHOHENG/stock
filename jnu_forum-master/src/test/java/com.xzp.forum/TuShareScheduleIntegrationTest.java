@@ -63,12 +63,12 @@ class TuShareScheduleIntegrationTest {
 
     @Test
     void tag() {
-        tagTask.setUserTag(null, LocalDate.of(2025, 7, 17));
+        tagTask.setUserTag(null, LocalDate.of(2025, 7, 30));
     }
 
     @Test
     void task() {
-        //eastMoneyCrawler.init();
+        eastMoneyCrawler.init();
         dailySchedule.getAllStockDaily(null);
         tagTask.setUserTag(null, null);
         dailySchedule.runDailyReport(null);

@@ -17,8 +17,8 @@ SELECT
 FROM user_tag_relation utr
          LEFT JOIN stock_basic sb ON utr.symbol = sb.symbol
          LEFT JOIN stock_daily sd ON sb.ts_code = sd.ts_code AND utr.`date`  = sd.trade_date
-WHERE FTagId = 17 and `date` ='20250725'
-ORDER BY sb.totalMarketCap DESC, utr.`date`  DESC;
+WHERE FTagId = 17 and `date` ='20250731'
+ORDER BY sd.amount  DESC, utr.`date`  DESC;
 
 
 --某个标签类型下的行业分布

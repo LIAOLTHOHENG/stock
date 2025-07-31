@@ -216,9 +216,9 @@ public class TagTask {
         if (todayChange.compareTo(BigDecimal.ZERO) > 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN.getCode(), date));
 
-            List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, null, 2);
+            List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, date, 2);
             //初始化数据兼容处理
-            if(sortedList.size()==2){
+            if (sortedList.size() == 2) {
                 StockDaily yesterday = sortedList.get(1);
                 if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 && stockDaily.getClose().compareTo(yesterday.getClose()) <= 0) {
                     resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN_GUXING.getCode(), date));
