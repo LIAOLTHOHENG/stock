@@ -81,19 +81,18 @@
     <select id="getByPageSize" resultType="com.xzp.forum.model.StockBasic">
         select * from stock_basic ts where 1=1
 
-        <if test="lastSymbol != null and lastSymbol > 0">
-            and ts.symbol &lt; #{lastSymbol}
+        <if test="lastName != null">
+            and ts.name &lt; #{lastName}
         </if>
-        <if test="symbol !=null">
-            and ts.symbol =#{symbol}
+        <if test="name !=null">
+            and ts.name =#{name}
         </if>
-        group by ts.symbol
-        order by ts.symbol desc limit #{pageSize}
+        order by ts.name desc limit #{pageSize}
     </select>
-    <select id="count" resultType="java.lang.Integer">
+    <select id="count" resultType="java.lang.Long">
         select count( distinct ts.symbol) from stock_basic ts where 1=1
-        <if test="symbol !=null">
-            and ts.symbol =#{symbol}
+        <if test="name !=null">
+            and ts.name =#{name}
         </if>
     </select>
 </mapper>

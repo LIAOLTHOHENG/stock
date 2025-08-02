@@ -25,7 +25,7 @@ public interface StockBasicMapper {
     List<StockBasic> selectByIndustry(@Param("industry") String industry);
 
 
-    List<StockBasic> getByPageSize(@Param("lastSymbol")String lastSymbol, @Param("pageSize")Integer pageSize,@Param("symbol") String symbol);
+    List<StockBasic> getByPageSize(@Param("lastName")String lastName, @Param("pageSize")Integer pageSize,@Param("name") String name);
 
-    Integer count(String symbol);
+    Long count(@Param("name") String name);
 }

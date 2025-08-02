@@ -16,6 +16,8 @@ import java.time.LocalDate;
 public interface DailyReportMapper extends BaseMapper<DailyReport> {
 
     LocalDate getmaxDate();
+
+    void deleteAll();
 }
 
 

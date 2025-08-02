@@ -72,6 +72,10 @@
             #{id}
         </foreach>
     </delete>
+    <delete id="deleteAll">
+            delete  from user_tag_relation
+            where 1=1
+    </delete>
 
     <select id="getMaxDate" resultType="java.time.LocalDate">
         SELECT MAX(date) FROM user_tag_relation

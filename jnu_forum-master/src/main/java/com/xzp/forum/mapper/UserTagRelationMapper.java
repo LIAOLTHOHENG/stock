@@ -26,4 +26,6 @@ public interface UserTagRelationMapper {
     List<CountTagDTO> queryByTagAndDate(@Param("tagIds") List<Long> tagIds, @Param("date") LocalDate date);
 
     LocalDate getMaxDate();
+
+    void deleteAll();
 }

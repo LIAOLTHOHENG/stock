@@ -22,6 +22,10 @@
         pre_close, pre_open, pre_low, pre_high,
         `change`, pct_chg, vol, amount, create_time
     </sql>
+    <delete id="deleteAll">
+            delete  from stock_daily
+            WHERE 1=1
+    </delete>
     <!-- 新增resultMap -->
     <resultMap id="StockDailyResultMap" type="com.xzp.forum.model.StockDaily">
         <id column="id" property="id" jdbcType="BIGINT"/>

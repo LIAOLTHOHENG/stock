@@ -3,42 +3,27 @@ package com.xzp.forum.util;
 import com.xzp.forum.model.StockDaily;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class StockLimitUtils {
+    // 定义精度容忍度
+    private static final BigDecimal TOLERANCE = new BigDecimal("0.001");
     /**
      * 判断是否涨停（动态涨跌幅限制）
      */
     public static boolean isLimitUp(StockDaily stock) {
-        BigDecimal limit = getLimitRate(stock.getTsCode());
-        return stock.getPctChg().compareTo(limit) >= 0;
+        // 计算理论涨停价
+        BigDecimal limitPrice = getLimitPrice(stock, true);
+        // 判断收盘价是否达到或超过理论涨停价（考虑精度误差）
+        return stock.getClose().compareTo(limitPrice.subtract(TOLERANCE)) >= 0;
     }
 
     /**
      * 判断是否跌停（动态涨跌幅限制）
      */
     public static boolean isLimitDown(StockDaily stock) {
-        BigDecimal limit = getLimitRate(stock.getTsCode());
-        return stock.getPctChg().compareTo(limit.negate()) <= 0;
-    }
-
-    /**
-     * 是否成功封板（涨停/跌停）
-     * @param stock
-     * @return true 表示成功封板
-     */
-    public static boolean isSuccessLimitUp(StockDaily stock) {
-        if (stock == null) return false;
-
-        // 1. 先判断是否涨停或跌停
-        boolean isLimit = isLimitUp(stock) || isLimitDown(stock);
-        if (!isLimit) return false;
-
-        // 2. 涨停封板判断：收盘价 == 最高价
-        if (isLimitUp(stock) && stock.getClose().compareTo(stock.getHigh()) == 0) {
-            return true;
-        }
-
-        return false;
+        BigDecimal limitPrice = getLimitPrice(stock, false);
+        return stock.getClose().compareTo(limitPrice.add(TOLERANCE)) <= 0;
     }
 
     //是否触及涨停
@@ -71,10 +56,12 @@ public class StockLimitUtils {
 
         if (isUp) {
             // 涨停价 = 前收盘价 * (1 + limitRate%)
-            return preClose.multiply(BigDecimal.valueOf(1).add(limitRate.divide(BigDecimal.valueOf(100))));
+            return preClose.multiply(BigDecimal.ONE.add(limitRate.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP)))
+                    .setScale(2, RoundingMode.HALF_UP);
         } else {
             // 跌停价 = 前收盘价 * (1 - limitRate%)
-            return preClose.multiply(BigDecimal.valueOf(1).subtract(limitRate.divide(BigDecimal.valueOf(100))));
+            return preClose.multiply(BigDecimal.ONE.subtract(limitRate.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP)))
+                    .setScale(2, RoundingMode.HALF_UP);
         }
     }
 
@@ -85,9 +72,9 @@ public class StockLimitUtils {
         if (tsCode == null) {
             return BigDecimal.valueOf(10); // 默认主板
         }
-        if (tsCode.contains("ST") || tsCode.contains("*ST")) {
+        if (tsCode.contains("ST") || tsCode.contains("*ST")|| tsCode.contains("**ST")) {
             return BigDecimal.valueOf(5); // ST股
-        } else if (tsCode.startsWith("300") || tsCode.startsWith("688")) {
+        } else if (tsCode.startsWith("30") || tsCode.startsWith("68")) {
             return BigDecimal.valueOf(20); // 创业板/科创板
         } else {
             return BigDecimal.valueOf(10); // 主板

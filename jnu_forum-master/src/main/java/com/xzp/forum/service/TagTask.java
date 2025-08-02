@@ -111,20 +111,20 @@ public class TagTask {
     /**
      * 所有用户口径
      */
-    private void dealTagByAll(String symbol, LocalDate date) {
+    private void dealTagByAll(String name, LocalDate date) {
         List<UserTagDTO> allNowList = Collections.synchronizedList(new ArrayList<>());
-        Integer total = stockBasicMapper.count(symbol);
+        Long total = stockBasicMapper.count(name);
         //防止深分页
         String lastSymbol = null;
         //循环次数
-        Integer loopNum = total / PAGE_SIZE + 1;
+        Long loopNum = total / PAGE_SIZE + 1;
         for (int i = 1; i <= loopNum; i++) {
-            List<StockBasic> stockList = stockBasicMapper.getByPageSize(lastSymbol, PAGE_SIZE, symbol);
+            List<StockBasic> stockList = stockBasicMapper.getByPageSize(lastSymbol, PAGE_SIZE, name);
             if (CollectionUtils.isEmpty(stockList)) {
                 continue;
             }
             CountDownLatch countDownLatch = new CountDownLatch(stockList.size());
-            lastSymbol = stockList.get(stockList.size() - 1).getSymbol();
+            lastSymbol = stockList.get(stockList.size() - 1).getName();
             for (StockBasic user : stockList) {
                 threadPoolTaskExecutor.execute(new Runnable() {
                     @Override
@@ -150,7 +150,7 @@ public class TagTask {
             }
 
         }
-        dealData(allNowList, symbol, date);
+        dealData(allNowList, name, date);
     }
 
 

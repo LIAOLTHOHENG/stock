@@ -1,5 +1,9 @@
 package com.xzp.forum;
 
+import com.xzp.forum.domain.DailyReport;
+import com.xzp.forum.mapper.DailyReportMapper;
+import com.xzp.forum.mapper.StockDailyMapper;
+import com.xzp.forum.mapper.UserTagRelationMapper;
 import com.xzp.forum.service.EastMoneyCrawler;
 import com.xzp.forum.service.TagTask;
 import com.xzp.forum.service.DailySchedule;
@@ -17,6 +21,12 @@ class TuShareScheduleIntegrationTest {
     private DailySchedule dailySchedule;
     @Resource
     private EastMoneyCrawler eastMoneyCrawler;
+    @Resource
+    StockDailyMapper stockDailyMapper;
+    @Resource
+    UserTagRelationMapper userTagRelationMapper;
+    @Resource
+    DailyReportMapper dailyReportMapper;
 
     /**
      * 基础信息
@@ -27,10 +37,13 @@ class TuShareScheduleIntegrationTest {
     }
     @Test
     void forNewEnv() {
+        //stockDailyMapper.deleteAll();
+        userTagRelationMapper.deleteAll();
+        dailyReportMapper.deleteAll();
 
         // 重跑7月2日到7月25日的交易日的标签数据
-        LocalDate startDate = LocalDate.of(2025, 7, 2);
-        LocalDate endDate = LocalDate.of(2025, 7, 25);
+        LocalDate startDate = LocalDate.of(2025, 7, 1);
+        LocalDate endDate = LocalDate.of(2025, 8, 1);
         LocalDate currentDate = startDate;
 
         while (!currentDate.isAfter(endDate)) {
@@ -39,7 +52,7 @@ class TuShareScheduleIntegrationTest {
 
                 try {
                     String tradeDate = currentDate.format(DateTimeFormatter.BASIC_ISO_DATE);
-                    dailySchedule.getAllStockDaily(tradeDate);
+                    //dailySchedule.getAllStockDaily(tradeDate);
                     tagTask.setUserTag(null, currentDate);
                     dailySchedule.runDailyReport(tradeDate);
                 } catch (Exception e) {
@@ -63,12 +76,12 @@ class TuShareScheduleIntegrationTest {
 
     @Test
     void tag() {
-        tagTask.setUserTag(null, LocalDate.of(2025, 7, 17));
+        tagTask.setUserTag("ST应急", LocalDate.of(2025, 8, 1));
     }
 
     @Test
     void task() {
-        //eastMoneyCrawler.init();
+        eastMoneyCrawler.init();
         dailySchedule.getAllStockDaily(null);
         tagTask.setUserTag(null, null);
         dailySchedule.runDailyReport(null);

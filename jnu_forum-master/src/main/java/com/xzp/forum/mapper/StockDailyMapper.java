@@ -43,4 +43,6 @@ public interface StockDailyMapper {
     String getMidIncrese(String date);
 
     LocalDate getmaxDate();
+
+    void deleteAll();
 }
