@@ -61,12 +61,12 @@ class TuShareScheduleIntegrationTest {
      */
     @Test
     void forNewEnv() {
-        //stockDailyMapper.deleteAll();
+        stockDailyMapper.deleteAll();
         userTagRelationMapper.deleteAll();
         dailyReportMapper.deleteAll();
 
         // 重跑7月2日到7月25日的交易日的标签数据
-        LocalDate startDate = LocalDate.of(2025, 7, 2);
+        LocalDate startDate = LocalDate.of(2025, 7, 1);
         LocalDate endDate = LocalDate.now();
         LocalDate currentDate = startDate;
 

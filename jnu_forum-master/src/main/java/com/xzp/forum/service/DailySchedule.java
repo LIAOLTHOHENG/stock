@@ -88,7 +88,7 @@ public class DailySchedule {
         // 4. 处理响应（根据实际需求补充）
         if (response != null && response.getCode() == 0) {
             // 处理成功响应
-            System.out.println("获取到" + response.getData().getItems().size() + "条数据");
+            //System.out.println("获取到" + response.getData().getItems().size() + "条数据");
         } else {
             // 处理错误
             String errorMsg = response != null ? response.getMsg() : "请求失败";
@@ -195,7 +195,6 @@ public class DailySchedule {
         }
 
         dailyReportMapper.insert(dailyReport);
-        System.out.println("中位数涨幅:" + mid);
     }
 
 
