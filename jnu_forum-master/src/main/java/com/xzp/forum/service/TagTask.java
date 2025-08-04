@@ -42,8 +42,6 @@ public class TagTask {
     private Map<String, Long> tagMap = new HashMap();
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
     private int corePoolSize = 8;
-
-    private static final ThreadLocal<Integer> DB_NO = new ThreadLocal<>();
     /**
      * 最大可创建的线程数
      */
@@ -87,7 +85,7 @@ public class TagTask {
      */
     public void setUserTag(String symbol, LocalDate date, List<LeafTag> tags) {
         try {
-            System.out.println("TagTaskstart" + date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            System.out.println("TagTaskstart");
             if (date == null) {
                 LocalDate maxDate = userTagRelationMapper.getMaxDate();
                 LocalDate now = LocalDate.now();
@@ -103,7 +101,7 @@ public class TagTask {
             dealTagByAll(symbol, date, tags);
 
         } finally {
-            System.out.println("TagTaskend"+ date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            System.out.println("TagTaskend");
         }
     }
 

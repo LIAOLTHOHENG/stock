@@ -8,6 +8,7 @@ import java.math.RoundingMode;
 public class StockLimitUtils {
     // 定义精度容忍度
     private static final BigDecimal TOLERANCE = new BigDecimal("0.001");
+
     /**
      * 判断是否涨停（动态涨跌幅限制）
      */
@@ -27,7 +28,7 @@ public class StockLimitUtils {
     }
 
     //是否触及涨停
-    public static boolean touchLimitUp(StockDaily stock){
+    public static boolean touchLimitUp(StockDaily stock) {
         if (stock == null) return false;
 
         // 获取涨停价
@@ -44,8 +45,9 @@ public class StockLimitUtils {
 
     /**
      * 获取涨停价或跌停价
+     *
      * @param stock
-     * @param isUp true=涨停价，false=跌停价
+     * @param isUp  true=涨停价，false=跌停价
      * @return 计算后的价格
      */
     public static BigDecimal getLimitPrice(StockDaily stock, boolean isUp) {
@@ -72,7 +74,7 @@ public class StockLimitUtils {
         if (tsCode == null) {
             return BigDecimal.valueOf(10); // 默认主板
         }
-        if (tsCode.contains("ST") || tsCode.contains("*ST")|| tsCode.contains("**ST")) {
+        if (tsCode.contains("ST") || tsCode.contains("*ST") || tsCode.contains("**ST")) {
             return BigDecimal.valueOf(5); // ST股
         } else if (tsCode.startsWith("30") || tsCode.startsWith("68")) {
             return BigDecimal.valueOf(20); // 创业板/科创板

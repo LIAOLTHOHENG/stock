@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xzp.forum.mapper.StockRealtimeMapper">
+
+    <resultMap id="BaseResultMap" type="com.xzp.forum.domain.StockRealtime">
+            <id property="id" column="id" />
+            <result property="tsCode" column="ts_code" />
+            <result property="name" column="name" />
+            <result property="open" column="open" />
+            <result property="high" column="high" />
+            <result property="low" column="low" />
+            <result property="close" column="close" />
+            <result property="preClose" column="pre_close" />
+            <result property="preOpen" column="pre_open" />
+            <result property="preLow" column="pre_low" />
+            <result property="preHigh" column="pre_high" />
+            <result property="change" column="change" />
+            <result property="pctChg" column="pct_chg" />
+            <result property="vol" column="vol" />
+            <result property="amount" column="amount" />
+            <result property="createTime" column="create_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,ts_code,name,open,high,low,
+        close,pre_close,pre_open,pre_low,pre_high,
+        change,pct_chg,vol,amount,create_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from stock_realtime
+        where  id = #{id} 
+    </select>
+    <select id="selectByTsCode" resultType="com.xzp.forum.domain.StockRealtime">
+        select
+        <include refid="Base_Column_List" />
+        from stock_realtime
+        where  ts_code = #{tsCode}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from stock_realtime
+        where  id = #{id} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.xzp.forum.domain.StockRealtime" useGeneratedKeys="true">
+        insert into stock_realtime
+        ( id,ts_code,name,open,high,low,
+        close,pre_close,pre_open,pre_low,pre_high,
+        change,pct_chg,vol,amount,create_time)
+        values (#{id},#{tsCode},#{name},#{open},#{high},#{low},
+        #{close},#{preClose},#{preOpen},#{preLow},#{preHigh},
+        #{change},#{pctChg},#{vol},#{amount},#{createTime})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.xzp.forum.domain.StockRealtime" useGeneratedKeys="true">
+        insert into stock_realtime
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="tsCode != null">ts_code,</if>
+                <if test="name != null">name,</if>
+                <if test="open != null">open,</if>
+                <if test="high != null">high,</if>
+                <if test="low != null">low,</if>
+                <if test="close != null">close,</if>
+                <if test="preClose != null">pre_close,</if>
+                <if test="preOpen != null">pre_open,</if>
+                <if test="preLow != null">pre_low,</if>
+                <if test="preHigh != null">pre_high,</if>
+                <if test="change != null">change,</if>
+                <if test="pctChg != null">pct_chg,</if>
+                <if test="vol != null">vol,</if>
+                <if test="amount != null">amount,</if>
+                <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id},</if>
+                <if test="tsCode != null">#{tsCode},</if>
+                <if test="name != null">#{name},</if>
+                <if test="open != null">#{open},</if>
+                <if test="high != null">#{high},</if>
+                <if test="low != null">#{low},</if>
+                <if test="close != null">#{close},</if>
+                <if test="preClose != null">#{preClose},</if>
+                <if test="preOpen != null">#{preOpen},</if>
+                <if test="preLow != null">#{preLow},</if>
+                <if test="preHigh != null">#{preHigh},</if>
+                <if test="change != null">#{change},</if>
+                <if test="pctChg != null">#{pctChg},</if>
+                <if test="vol != null">#{vol},</if>
+                <if test="amount != null">#{amount},</if>
+                <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+    <insert id="batchInsert">
+        insert into stock_realtime
+        ( id,ts_code,name,open,high,low,
+        close,pre_close,pre_open,pre_low,pre_high,
+        change,pct_chg,vol,amount,create_time)
+        values
+        <foreach collection="records" item="record" separator=",">
+            (#{record.id},#{record.tsCode},#{record.name},#{record.open},#{record.high},#{record.low},
+            #{record.close},#{record.preClose},#{record.preOpen},#{record.pre}
+            )
+        </foreach>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.xzp.forum.domain.StockRealtime">
+        update stock_realtime
+        <set>
+                <if test="tsCode != null">
+                    ts_code = #{tsCode},
+                </if>
+                <if test="name != null">
+                    name = #{name},
+                </if>
+                <if test="open != null">
+                    open = #{open},
+                </if>
+                <if test="high != null">
+                    high = #{high},
+                </if>
+                <if test="low != null">
+                    low = #{low},
+                </if>
+                <if test="close != null">
+                    close = #{close},
+                </if>
+                <if test="preClose != null">
+                    pre_close = #{preClose},
+                </if>
+                <if test="preOpen != null">
+                    pre_open = #{preOpen},
+                </if>
+                <if test="preLow != null">
+                    pre_low = #{preLow},
+                </if>
+                <if test="preHigh != null">
+                    pre_high = #{preHigh},
+                </if>
+                <if test="change != null">
+                    change = #{change},
+                </if>
+                <if test="pctChg != null">
+                    pct_chg = #{pctChg},
+                </if>
+                <if test="vol != null">
+                    vol = #{vol},
+                </if>
+                <if test="amount != null">
+                    amount = #{amount},
+                </if>
+                <if test="createTime != null">
+                    create_time = #{createTime},
+                </if>
+        </set>
+        where   id = #{id} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.xzp.forum.domain.StockRealtime">
+        update stock_realtime
+        set 
+            ts_code =  #{tsCode},
+            name =  #{name},
+            open =  #{open},
+            high =  #{high},
+            low =  #{low},
+            close =  #{close},
+            pre_close =  #{preClose},
+            pre_open =  #{preOpen},
+            pre_low =  #{preLow},
+            pre_high =  #{preHigh},
+            change =  #{change},
+            pct_chg =  #{pctChg},
+            vol =  #{vol},
+            amount =  #{amount},
+            create_time =  #{createTime}
+        where   id = #{id} 
+    </update>
+</mapper>

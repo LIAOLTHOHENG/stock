@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xzp.forum.mapper.UserTagRelationRealtimeMapper">
+
+    <resultMap id="BaseResultMap" type="com.xzp.forum.domain.UserTagRelationRealtime">
+            <id property="id" column="id" />
+            <result property="symbol" column="symbol" />
+            <result property="ftagid" column="FTagId" />
+            <result property="fcreatetime" column="FCreateTime" />
+            <result property="description" column="description" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,symbol,FTagId,FCreateTime,description
+    </sql>
+    <insert id="batchInsert">
+        insert into user_tag_relation_realtime
+        (id,symbol,FTagId,FCreateTime,description)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.symbol},#{item.ftagid},#{item.fcreatetime},#{item.description})
+        </foreach>
+    </insert>
+    <delete id="deleteAll">
+        delete from user_tag_relation_realtime
+    </delete>
+</mapper>

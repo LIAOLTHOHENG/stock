@@ -1,15 +1,16 @@
 package com.xzp.forum.service;
 
 import com.xzp.forum.domain.DailyReport;
+import com.xzp.forum.domain.StockRealtime;
 import com.xzp.forum.enums.LeafTag;
 import com.xzp.forum.mapper.DailyReportMapper;
 import com.xzp.forum.mapper.StockDailyMapper;
+import com.xzp.forum.mapper.StockRealtimeMapper;
 import com.xzp.forum.mapper.UserTagRelationMapper;
 import com.xzp.forum.model.CountTagDTO;
 import com.xzp.forum.model.StockDaily;
 import com.xzp.forum.model.api.TushareReq;
 import com.xzp.forum.model.api.TushareResp;
-import com.xzp.forum.util.StockLimitUtils;
 import com.xzp.forum.util.StockUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +49,8 @@ public class DailySchedule {
     private final DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyyMMdd");
     @Autowired
     private UserTagRelationMapper userTagRelationMapper;
+    @Autowired
+    private StockRealtimeMapper stockRealtimeMapper;
 
     /**
      * 每日数据拉取
@@ -105,7 +108,44 @@ public class DailySchedule {
                 System.out.println("插入失败" + list);
             }
         }
+    }
 
+    public void runRealTime(){
+        String method = "rt_k";
+        TushareReq tushareReq = new TushareReq();
+        tushareReq.setApi_name(method);
+        tushareReq.setToken(token);
+        tushareReq.setFields("ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount");
+        tushareReq.setParams(new HashMap<>() {{
+            put("ts_code", "3*.SZ,6*.SH,0*.SZ");
+        }});
+
+        // 3. 发送POST请求
+        TushareResp response = restTemplate.postForObject(
+                TUSHARE_URL,
+                tushareReq,
+                TushareResp.class
+        );
+        // 4. 处理响应（根据实际需求补充）
+        if (response != null && response.getCode() == 0) {
+            // 处理成功响应
+            System.out.println("获取到" + response.getData().getItems().size() + "条数据");
+        } else {
+            // 处理错误
+            String errorMsg = response != null ? response.getMsg() : "请求失败";
+            System.err.println("API调用失败: " + errorMsg);
+        }
+        // 5. 循环处理处理 插入 每次500条
+        for (int i = 0; i < response.getData().getItems().size(); i += 500) {
+            int endIndex = Math.min(i + 500, response.getData().getItems().size());
+            List<StockRealtime> list = buildStockRealTimeDOList(response.getData().getItems().subList(i, endIndex));
+            try {
+                stockRealtimeMapper.batchInsert(list);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("插入失败" + list);
+            }
+        }
     }
 
     private List<StockDaily> buildStockDailyDOList(List<List<Object>> subList) {
@@ -132,6 +172,33 @@ public class DailySchedule {
             stockDailyList.add(stockDaily);
         }
         return stockDailyList;
+    }
+
+
+    private List<StockRealtime> buildStockRealTimeDOList(List<List<Object>> subList) {
+        List<StockRealtime> stockRealtime = new ArrayList();
+        //根据 Fields里面的字段 设置进数据库对象
+        for (List<Object> objects : subList) {
+
+            // 过滤不符合条件的股票
+            if (StockUtil.isRestrictedStock(objects.get(0).toString())) {
+                continue;
+            }
+            StockRealtime stockRealTime = new StockRealtime();
+            stockRealTime.setTsCode(objects.get(0).toString());
+            stockRealTime.setName(objects.get(1).toString());
+            stockRealTime.setPreClose(new BigDecimal(objects.get(2).toString()));
+            stockRealTime.setHigh(new BigDecimal(objects.get(3).toString()));
+            stockRealTime.setOpen(new BigDecimal(objects.get(4).toString()));
+            stockRealTime.setLow(new BigDecimal(objects.get(5).toString()));
+            stockRealTime.setClose(new BigDecimal(objects.get(6).toString()));
+            stockRealTime.setVol(new BigDecimal(objects.get(7).toString()));
+            stockRealTime.setAmount(new BigDecimal(objects.get(8).toString()));
+            stockRealtime.add(stockRealTime);
+            //stockRealTime.setChange(new BigDecimal(objects.get(7).toString()));
+            // stockRealTime.setPctChg(new BigDecimal(objects.get(8).toString()));
+        }
+        return stockRealtime;
     }
 
     /**

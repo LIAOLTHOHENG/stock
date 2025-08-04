@@ -63,7 +63,7 @@ public class EastMoneyCrawler {
 
         String jsonStr = Jsoup.connect(apiUrl)
                 .ignoreContentType(true)
-                .timeout(30000)
+                .timeout(60000)
                 .execute().body();
         return JSONObject.parseObject(jsonStr);
     }
@@ -84,8 +84,8 @@ public class EastMoneyCrawler {
                 Double x = item.getDouble("f21");
                 stock.setTotalMarketCap(y);
                 stock.setFloatMarketCap(x);
-            }catch (Exception e){
-                System.out.println("获取市值失败"+stock.symbol+item.getString("f20")+";"+item.getString("f21"));
+            } catch (Exception e) {
+                System.out.println("获取市值失败" + stock.symbol + item.getString("f20") + ";" + item.getString("f21"));
             }
             // 股票名称
             // 处理可能缺失的字段

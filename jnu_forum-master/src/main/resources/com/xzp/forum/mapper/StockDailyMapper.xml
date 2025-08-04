@@ -23,8 +23,9 @@
         `change`, pct_chg, vol, amount, create_time
     </sql>
     <delete id="deleteAll">
-            delete  from stock_daily
-            WHERE 1=1
+        delete
+        from stock_daily
+        WHERE 1 = 1
     </delete>
     <!-- 新增resultMap -->
     <resultMap id="StockDailyResultMap" type="com.xzp.forum.model.StockDaily">
@@ -133,21 +134,21 @@
         WHERE sd.row_num IN (FLOOR((sd.total_count + 1) / 2), FLOOR((sd.total_count + 2) / 2))
     </select>
     <select id="selectByTsCodeAndDateRage" resultType="com.xzp.forum.model.StockDaily">
-         SELECT
+        SELECT
         <include refid="selectFields"/>
-             FROM
+        FROM
         <include refid="tablename"/>
-                 WHERE ts_code = #{tsCode}
-             <if test="start != null">
-                 AND trade_date >= #{start}
-             </if>
-             <if test="end != null">
-                 AND trade_date <![CDATA[ <= ]]> #{end}
-             </if>
-                 ORDER BY trade_date desc
-                 <if test="count != null">
-                     limit #{count}
-                 </if>
+        WHERE ts_code = #{tsCode}
+        <if test="start != null">
+            AND trade_date >= #{start}
+        </if>
+        <if test="end != null">
+            AND trade_date <![CDATA[ <= ]]> #{end}
+        </if>
+        ORDER BY trade_date desc
+        <if test="count != null">
+            limit #{count}
+        </if>
     </select>
 
     <select id="getmaxDate" resultType="java.time.LocalDate">
