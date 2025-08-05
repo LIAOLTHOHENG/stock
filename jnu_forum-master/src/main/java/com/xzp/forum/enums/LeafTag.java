@@ -7,38 +7,38 @@ package com.xzp.forum.enums;
 public enum LeafTag {
 
 
-    _10CM("10CM", "10厘米", 1L),
-    _20CM("20CM", "20厘米", 2L),
-    CAN_DEAL("CAN_DEAL", "属于创业板和主板", 3L),
+    _10CM("10CM", "10厘米", 1L, null),
+    _20CM("20CM", "20厘米", 2L, null),
+    CAN_DEAL("CAN_DEAL", "属于创业板和主板", 3L, null),
     //缩量至平稳
-    STABLE("STABLE", "缩量至平稳", 4L),
+    STABLE("STABLE", "缩量至平稳", 4L, null),
     //插入线
-    INSERTION("INSERTION", "插入线", 5L),
+    INSERTION("INSERTION", "插入线", 5L, true),
     //上涨抱线
-    UP_BOUNCE("UP_BOUNCE", "上涨抱线", 6L),
+    UP_BOUNCE("UP_BOUNCE", "上涨抱线", 6L, true),
     //阴线+孕线
-    DOWN_BOUNCE("DOWN_BOUNCE", "阴线+孕线", 7L),
+    DOWN_BOUNCE("DOWN_BOUNCE", "阴线+孕线", 7L, true),
     //跌幅实体越来越小
-    DOWN_ENTITY("DOWN_ENTITY", "跌幅实体越来越小", 8L),
+    DOWN_ENTITY("DOWN_ENTITY", "跌幅实体越来越小", 8L, null),
     //涨幅大于0
-    UP("UP", "涨幅大于0", 9L),
+    UP("UP", "涨幅大于0", 9L, null),
     //跌幅大于0
-    DOWN("DOWN", "跌幅大于0", 10L),
+    DOWN("DOWN", "跌幅大于0", 10L, null),
     //涨幅等于0
-    FLAT("FLAT", "涨幅等于0", 11L),
+    FLAT("FLAT", "涨幅等于0", 11L, null),
 
-    ZHANGTING("ZHANGTING", "涨停", 12L),
+    ZHANGTING("ZHANGTING", "涨停", 12L, null),
 
-    DIETING("DIETING", "跌停", 13L),
+    DIETING("DIETING", "跌停", 13L, null),
 
-    TOUCH_ZHANGTING("TOUCH_ZHANGTING", "触涨停", 14L),
+    TOUCH_ZHANGTING("TOUCH_ZHANGTING", "触涨停", 14L, null),
 
-    YANGXIAN("YANGXIAN", "阳线", 15L),
-    YINXIAN("YINXIAN", "阴线", 16L),
+    YANGXIAN("YANGXIAN", "阳线", 15L, null),
+    YINXIAN("YINXIAN", "阴线", 16L, null),
     //
-    YANGXIAN_GUXING("YANGXIAN_GUXING", "阳线且孤独", 17L),
+    YANGXIAN_GUXING("YANGXIAN_GUXING", "阳线且孤独", 17L, true),
 
-    YINXIAN_GUXING("YINXIAN_GUXING", "阴线且孤独", 18L),
+    YINXIAN_GUXING("YINXIAN_GUXING", "阴线且孤独", 18L, false),
 
     ;
     private final String code;
@@ -46,10 +46,13 @@ public enum LeafTag {
 
     private final long id;
 
-    LeafTag(String code, String description, long id) {
+    private Boolean isRising;
+
+    LeafTag(String code, String description, long id, Boolean isRising) {
         this.code = code;
         this.description = description;
         this.id = id;
+        this.isRising = isRising;
     }
 
     public String getCode() {
