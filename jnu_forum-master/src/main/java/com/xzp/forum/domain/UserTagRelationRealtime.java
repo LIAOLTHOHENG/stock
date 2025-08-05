@@ -1,7 +1,10 @@
 package com.xzp.forum.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -9,6 +12,8 @@ import java.util.Date;
  * @TableName user_tag_relation_realtime
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserTagRelationRealtime {
     /**
      * 自增主键
@@ -28,7 +33,7 @@ public class UserTagRelationRealtime {
     /**
      * 创建时间
      */
-    private Date fcreatetime;
+    private LocalDateTime fcreatetime;
 
     /**
      * 

@@ -1,11 +1,15 @@
 package com.xzp.forum.service;
 
+import com.google.common.collect.Lists;
 import com.xzp.forum.domain.StockRealtime;
+import com.xzp.forum.domain.UserTagRelationRealtime;
 import com.xzp.forum.enums.LeafTag;
 import com.xzp.forum.mapper.*;
 import com.xzp.forum.model.StockBasic;
 import com.xzp.forum.model.StockDaily;
+import com.xzp.forum.model.UserTagDTO;
 import com.xzp.forum.model.UserTagRealtimeDTO;
+import com.xzp.forum.model.UserTagRelation;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -14,6 +18,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -142,7 +147,14 @@ public class RealtimeTagTask {
      */
     private void dealData(List<UserTagRealtimeDTO> nowList) {
         userTagRelationRealtimeMapper.deleteAll();
-        userTagRelationRealtimeMapper.batchInsert(nowList);
+        if (!CollectionUtils.isEmpty(nowList)) {
+            List<List<UserTagRealtimeDTO>> partitionList = Lists.partition(nowList, 500);
+            for (List<UserTagRealtimeDTO> list : partitionList) {
+                userTagRelationRealtimeMapper.batchInsert(list.stream().map(x -> {
+                    return new UserTagRelationRealtime(null, x.getSymbol(), x.getFtagId(), LocalDateTime.now(), LeafTag.fromId(x.getFtagId()).getDescription());
+                }).collect(Collectors.toList()));
+            }
+        }
     }
 
     /**
@@ -152,32 +164,40 @@ public class RealtimeTagTask {
      * @return
      */
     private List<UserTagRealtimeDTO> runAllStockTaskCore(StockBasic stock) {
-        List<UserTagRealtimeDTO> resultList = new ArrayList<>();
-        //涨跌幅
-        StockRealtime realTime = stockRealtimeMapper.selectByTsCode(stock.getTsCode());
-        //st退市股
-        if (realTime == null) {
-            return new ArrayList<>();
-        }
-        //振幅
-        BigDecimal todayChange = realTime.getClose().subtract(realTime.getOpen());
-        if (todayChange.compareTo(BigDecimal.ZERO) > 0) {
-            //实时任务里 查最近一条肯定是昨天的（因为今天的盘后才更新）
-            List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, LocalDate.now(), 1);
-            //初始化数据兼容处理
-            StockDaily yesterday = sortedList.get(0);
-            if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 && realTime.getClose().compareTo(yesterday.getClose()) <= 0) {
-                resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN_GUXING.getCode()));
+        try {
+            List<UserTagRealtimeDTO> resultList = new ArrayList<>();
+            //涨跌幅
+            StockRealtime realTime = stockRealtimeMapper.selectByTsCode(stock.getTsCode());
+            //st退市股
+            if (realTime == null) {
+                return new ArrayList<>();
             }
-        } else if (todayChange.compareTo(BigDecimal.ZERO) < 0) {
-            List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, LocalDate.now(), 1);
-            //初始化数据兼容处理
-            StockDaily yesterday = sortedList.get(0);
-            if (yesterday.getClose().compareTo(yesterday.getOpen()) > 0 && realTime.getClose().compareTo(yesterday.getClose()) >= 0) {
-                resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YINXIAN_GUXING.getCode()));
+            //振幅
+            BigDecimal todayChange = realTime.getClose().subtract(realTime.getOpen());
+            if (todayChange.compareTo(BigDecimal.ZERO) > 0) {
+                //实时任务里 查最近一条肯定是昨天的（因为今天的盘后才更新）
+                List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, LocalDate.now(), 1);
+                if (sortedList.size() == 1) {
+                    StockDaily yesterday = sortedList.get(0);
+                    if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 && realTime.getClose().compareTo(yesterday.getClose()) <= 0) {
+                        resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN_GUXING.getCode()));
+                    }
+                }
+            } else if (todayChange.compareTo(BigDecimal.ZERO) < 0) {
+                List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, LocalDate.now(), 1);
+                if (sortedList.size() == 1) {
+                    StockDaily yesterday = sortedList.get(0);
+                    if (yesterday.getClose().compareTo(yesterday.getOpen()) > 0 && realTime.getClose().compareTo(yesterday.getClose()) >= 0) {
+                        resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YINXIAN_GUXING.getCode()));
+                    }
+                }
             }
+            return resultList;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("error" + stock.getSymbol() + stock.getName());
         }
-        return resultList;
+        return new ArrayList<>();
     }
 
 

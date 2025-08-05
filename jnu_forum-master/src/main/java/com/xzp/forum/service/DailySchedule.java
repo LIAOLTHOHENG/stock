@@ -115,7 +115,7 @@ public class DailySchedule {
         TushareReq tushareReq = new TushareReq();
         tushareReq.setApi_name(method);
         tushareReq.setToken(token);
-        tushareReq.setFields("ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount");
+        tushareReq.setFields("ts_code,name,pre_close,high,open,low,close,vol,amount");
         tushareReq.setParams(new HashMap<>() {{
             put("ts_code", "3*.SZ,6*.SH,0*.SZ");
         }});
@@ -135,6 +135,7 @@ public class DailySchedule {
             String errorMsg = response != null ? response.getMsg() : "请求失败";
             System.err.println("API调用失败: " + errorMsg);
         }
+        stockRealtimeMapper.deleteAll();
         // 5. 循环处理处理 插入 每次500条
         for (int i = 0; i < response.getData().getItems().size(); i += 500) {
             int endIndex = Math.min(i + 500, response.getData().getItems().size());

@@ -19,7 +19,7 @@ public interface UserTagRelationRealtimeMapper extends BaseMapper<UserTagRelatio
 
     void deleteAll();
 
-    void batchInsert(@Param("list") List<UserTagRealtimeDTO> nowList);
+    void batchInsert(@Param("list") List<UserTagRelationRealtime> nowList);
 }
 
 

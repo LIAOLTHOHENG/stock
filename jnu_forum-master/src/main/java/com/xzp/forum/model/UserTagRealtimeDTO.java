@@ -24,16 +24,4 @@ public class UserTagRealtimeDTO {
 
     private Long FtagId;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof UserTagRealtimeDTO)) return false;
-        UserTagRealtimeDTO that = (UserTagRealtimeDTO) o;
-        return symbol.equals(that.symbol) && FtagId.equals(that.FtagId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(symbol, FtagId);
-    }
 }

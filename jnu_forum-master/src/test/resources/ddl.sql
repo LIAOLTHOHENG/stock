@@ -67,3 +67,4 @@ CREATE TABLE `daily_report` (
                                 PRIMARY KEY (`id`),
                                 UNIQUE KEY `uniq_trade` (`trade_date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='日结数据';
+

@@ -17,18 +17,13 @@ public interface StockRealtimeMapper {
 
     int deleteByPrimaryKey(Long id);
 
-    int insert(StockRealtime record);
-
     int insertSelective(StockRealtime record);
 
     StockRealtime selectByPrimaryKey(Long id);
-
-    int updateByPrimaryKeySelective(StockRealtime record);
-
-    int updateByPrimaryKey(StockRealtime record);
 
     void batchInsert(@Param("list") List<StockRealtime>  records);
 
     StockRealtime selectByTsCode(@Param("tsCode") String tsCode);
 
+    void deleteAll();
 }
