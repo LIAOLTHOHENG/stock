@@ -74,7 +74,9 @@ SELECT
 FROM user_tag_relation_realtime utr
     LEFT JOIN stock_basic sb ON utr.symbol = sb.symbol
     LEFT JOIN stock_realtime  sd ON sb.ts_code = sd.ts_code
-WHERE FTagId = 17
+WHERE FTagId = 17 and sb.industry !='-'
 GROUP BY sb.industry
 ORDER BY tagCount DESC;
+
+
 
