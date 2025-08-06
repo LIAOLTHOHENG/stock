@@ -1,6 +1,9 @@
 package com.xzp.forum.enums;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 股票特性标签 叶子结点枚举
  */
@@ -63,6 +66,10 @@ public enum LeafTag {
         return description;
     }
 
+    public Boolean isRising() {
+        return isRising;
+    }
+
     public Long getId() {
         return id;
     }
@@ -85,5 +92,20 @@ public enum LeafTag {
         return null;
     }
 
+
+    public static List<LeafTag> upTags;
+
+    public static List<LeafTag> getUpTags() {
+        if (upTags != null) {
+            return upTags;
+        }
+        upTags = new ArrayList<>();
+        for (LeafTag tag : LeafTag.values()) {
+            if (tag.isRising() != null && tag.isRising()) {
+                upTags.add(tag);
+            }
+        }
+        return upTags;
+    }
 }
 

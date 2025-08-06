@@ -54,6 +54,16 @@
 			<artifactId>guava</artifactId>
 			<version>33.1.0-jre</version> <!-- 最新稳定版 -->
 		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>1.9.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>1.9.7</version>
+		</dependency>
 
 		<!-- Java 11+ 需要手动添加JAXB（如果报错） -->
 		<dependency>

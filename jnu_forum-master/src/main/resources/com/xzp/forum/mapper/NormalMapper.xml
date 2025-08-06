@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xzp.forum.mapper.NormalMapper">
+
+
+    <select id="getStocksByIndustry" resultType="com.xzp.forum.model.StocksByIndustry">
+        SELECT
+            sb.industry,
+            CASE
+                WHEN SUM(sd.amount) >= 100000000 THEN CONCAT(ROUND(SUM(sd.amount) / 100000000, 2), '亿')
+                ELSE CONCAT(ROUND(SUM(sd.amount)/10000, 2), '万')
+                END AS totalAmountWithUnit,
+            GROUP_CONCAT(
+                    CONCAT(
+                            sb.name,
+                            '(',
+                            CASE
+                                WHEN sd.amount >= 100000000 THEN CONCAT(ROUND(sd.amount / 100000000, 2), '亿')
+                                ELSE CONCAT(ROUND(sd.amount / 10000, 2), '万')
+                                END,
+                            ')'
+                    )
+                        ORDER BY sd.amount DESC
+        SEPARATOR ','
+            ) AS names,
+    COUNT(*) AS tagCount
+        FROM user_tag_relation_realtime utr
+            LEFT JOIN stock_basic sb ON utr.symbol = sb.symbol
+            LEFT JOIN stock_realtime  sd ON sb.ts_code = sd.ts_code
+        WHERE FTagId = 17 and sb.industry !='-'
+        GROUP BY sb.industry
+        ORDER BY tagCount DESC;
+    </select>
+    <select id="getStocksByIndustryStrict" resultType="com.xzp.forum.model.StocksByIndustry">
+        SELECT
+            sb.industry,
+            CASE
+                WHEN SUM(sd.amount) >= 100000000 THEN CONCAT(ROUND(SUM(sd.amount) / 100000000, 2), '亿')
+                ELSE CONCAT(ROUND(SUM(sd.amount)/10000, 2), '万')
+                END AS totalAmountWithUnit,
+            GROUP_CONCAT(
+                    CONCAT(
+                            sb.name,
+                            '(',
+                            CASE
+                                WHEN sd.amount >= 100000000 THEN CONCAT(ROUND(sd.amount / 100000000, 2), '亿')
+                                ELSE CONCAT(ROUND(sd.amount / 10000, 2), '万')
+                                END,
+                            ')'
+                    )
+                        ORDER BY sd.amount DESC
+        SEPARATOR ','
+            ) AS names,
+    COUNT(*) AS tagCount
+        FROM user_tag_relation_realtime utr
+            LEFT JOIN stock_basic sb ON utr.symbol = sb.symbol
+            LEFT JOIN stock_realtime sd ON sb.ts_code = sd.ts_code
+        WHERE 1=1
+        <if test = "tagIds !=null">
+        AND FTagId IN
+        <foreach item="tagId" collection="tagIds" separator="," open="(" close=")">
+            #{tagId}
+        </foreach>
+    </if>
+          AND sb.industry != '-'
+          AND utr.symbol IN (
+            SELECT symbol
+            FROM user_tag_relation
+            WHERE 1=1
+        <if test = "tagIds !=null">
+            AND FTagId IN
+        <foreach item="tagId" collection="tagIds" separator="," open="(" close=")">
+            #{tagId}
+        </foreach>
+        </if>
+          AND date IN (
+            SELECT date
+            FROM (
+            SELECT DISTINCT date
+            FROM user_tag_relation
+            ORDER BY date DESC
+            LIMIT #{days}
+            ) AS recent_dates
+            )
+            GROUP BY symbol
+            HAVING COUNT(*) >= #{frequency}
+            )
+        GROUP BY sb.industry
+        ORDER BY tagCount DESC;
+
+    </select>
+</mapper>
