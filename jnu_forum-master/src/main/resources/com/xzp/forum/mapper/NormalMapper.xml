@@ -7,34 +7,35 @@
 
     <select id="getRealtimeStocksByIndustry" resultType="com.xzp.forum.model.StocksByIndustry">
         SELECT sb.industry,
-               CASE
-                   WHEN SUM(sd.amount) >= 100000000 THEN CONCAT(ROUND(SUM(sd.amount) / 100000000, 2), '亿')
-                   ELSE CONCAT(ROUND(SUM(sd.amount) / 10000, 2), '万')
-                   END AS totalAmountWithUnit,
-               GROUP_CONCAT(
-                       CONCAT(
-                               sb.name,
-                               '(',
-                               CASE
-                                   WHEN sd.amount >= 100000000 THEN CONCAT(ROUND(sd.amount / 100000000, 2), '亿')
-                                   ELSE CONCAT(ROUND(sd.amount / 10000, 2), '万')
-                                   END,
-                               ')'
-                       ) ORDER BY sd.amount DESC
+        CASE
+        WHEN SUM(sd.amount) >= 100000000 THEN CONCAT(ROUND(SUM(sd.amount) / 100000000, 2), '亿')
+        ELSE CONCAT(ROUND(SUM(sd.amount) / 10000, 2), '万')
+        END AS totalAmountWithUnit,
+        GROUP_CONCAT(
+        CONCAT(
+        sb.name,
+        '(',
+        CASE
+        WHEN sd.amount >= 100000000 THEN CONCAT(ROUND(sd.amount / 100000000, 2), '亿')
+        ELSE CONCAT(ROUND(sd.amount / 10000, 2), '万')
+        END,
+        ')'
+        ) ORDER BY sd.amount DESC
         SEPARATOR ','
-               ) AS names,
-    COUNT(*) AS tagCount
+        ) AS names,
+        COUNT(*) AS tagCount
         FROM user_tag_relation_realtime utr
-            LEFT JOIN stock_basic sb
+        LEFT JOIN stock_basic sb
         ON utr.symbol = sb.symbol
-            LEFT JOIN stock_realtime sd ON sb.ts_code = sd.ts_code
+        LEFT JOIN stock_realtime sd ON sb.ts_code = sd.ts_code
         WHERE 1=1
         <if test="tagIds !=null">
             AND FTagId IN
             <foreach item="tagId" collection="tagIds" separator="," open="(" close=")">
                 #{tagId}
             </foreach>
-        </if> and sb.industry !='-'
+        </if>
+        and sb.industry !='-'
         GROUP BY sb.industry
         ORDER BY tagCount DESC;
     </select>
@@ -98,34 +99,35 @@
     </select>
     <select id="getAfter3StocksByIndustry" resultType="com.xzp.forum.model.StocksByIndustry">
         SELECT sb.industry,
-               CASE
-                   WHEN SUM(sd.amount) >= 100000 THEN CONCAT(ROUND(SUM(sd.amount) / 100000, 2), '亿')
-                   ELSE CONCAT(ROUND(SUM(sd.amount) / 10, 2), '万')
-                   END AS totalAmountWithUnit,
-               GROUP_CONCAT(
-                       CONCAT(
-                               sb.name,
-                               '(',
-                               CASE
-                                   WHEN sd.amount >= 100000 THEN CONCAT(ROUND(sd.amount / 100000, 2), '亿')
-                                   ELSE CONCAT(ROUND(sd.amount / 10, 2), '万')
-                                   END,
-                               ')'
-                       ) ORDER BY sd.amount DESC
+        CASE
+        WHEN SUM(sd.amount) >= 100000 THEN CONCAT(ROUND(SUM(sd.amount) / 100000, 2), '亿')
+        ELSE CONCAT(ROUND(SUM(sd.amount) / 10, 2), '万')
+        END AS totalAmountWithUnit,
+        GROUP_CONCAT(
+        CONCAT(
+        sb.name,
+        '(',
+        CASE
+        WHEN sd.amount >= 100000 THEN CONCAT(ROUND(sd.amount / 100000, 2), '亿')
+        ELSE CONCAT(ROUND(sd.amount / 10, 2), '万')
+        END,
+        ')'
+        ) ORDER BY sd.amount DESC
         SEPARATOR ','
-               ) AS names,
-    COUNT(*) AS tagCount
+        ) AS names,
+        COUNT(*) AS tagCount
         FROM user_tag_relation utr
-            LEFT JOIN stock_basic sb
+        LEFT JOIN stock_basic sb
         ON utr.symbol = sb.symbol
-            LEFT JOIN stock_daily sd ON sb.ts_code = sd.ts_code AND utr.`date` = sd.trade_date
+        LEFT JOIN stock_daily sd ON sb.ts_code = sd.ts_code AND utr.`date` = sd.trade_date
         WHERE 1=1
         <if test="tagIds !=null">
             AND FTagId IN
             <foreach item="tagId" collection="tagIds" separator="," open="(" close=")">
                 #{tagId}
             </foreach>
-        </if> AND `date` = #{date}
+        </if>
+        AND `date` = #{date}
         GROUP BY sb.industry
         ORDER BY tagCount DESC
     </select>
@@ -169,17 +171,17 @@
         SELECT date
         FROM (
         SELECT DISTINCT date
-        FROM user_tag_relation where 1=1
+        FROM user_tag_relation
+        ORDER BY date DESC
+        LIMIT #{days}
+        ) AS recent_dates
+        )
         <if test="tagIds !=null">
             AND FTagId IN
             <foreach item="tagId" collection="tagIds" separator="," open="(" close=")">
                 #{tagId}
             </foreach>
         </if>
-        ORDER BY date DESC
-        LIMIT #{days}
-        ) AS recent_dates
-        )
         GROUP BY symbol
         HAVING COUNT(*) >= #{frequency}+1
         )
