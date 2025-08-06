@@ -119,13 +119,16 @@ public class DailySchedule {
         tushareReq.setParams(new HashMap<>() {{
             put("ts_code", "3*.SZ,6*.SH,0*.SZ");
         }});
-
+        //计算耗时
+        long startTime = System.currentTimeMillis();
         // 3. 发送POST请求
         TushareResp response = restTemplate.postForObject(
                 TUSHARE_URL,
                 tushareReq,
                 TushareResp.class
         );
+        long endTime = System.currentTimeMillis();
+        System.out.println("实时接口耗时：" + (endTime - startTime));
         // 4. 处理响应（根据实际需求补充）
         if (response != null && response.getCode() == 0) {
             // 处理成功响应
@@ -135,8 +138,12 @@ public class DailySchedule {
             String errorMsg = response != null ? response.getMsg() : "请求失败";
             System.err.println("API调用失败: " + errorMsg);
         }
+        //计算耗时
+        long startTime2 = System.currentTimeMillis();
         stockRealtimeMapper.deleteAll();
+        System.out.println("删除成功"+"耗时：" + (System.currentTimeMillis() - startTime2));
         // 5. 循环处理处理 插入 每次500条
+        long startTime3 = System.currentTimeMillis();
         for (int i = 0; i < response.getData().getItems().size(); i += 500) {
             int endIndex = Math.min(i + 500, response.getData().getItems().size());
             List<StockRealtime> list = buildStockRealTimeDOList(response.getData().getItems().subList(i, endIndex));
@@ -147,6 +154,7 @@ public class DailySchedule {
                 System.out.println("插入失败" + list);
             }
         }
+        System.out.println("插入成功"+"耗时：" + (System.currentTimeMillis() - startTime3));
     }
 
     private List<StockDaily> buildStockDailyDOList(List<List<Object>> subList) {
