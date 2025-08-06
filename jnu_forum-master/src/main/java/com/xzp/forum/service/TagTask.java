@@ -216,6 +216,7 @@ public class TagTask {
         }
         //振幅
         BigDecimal todayChange = today.getClose().subtract(today.getOpen());
+        //今日阳线
         if (todayChange.compareTo(BigDecimal.ZERO) > 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN.getCode(), date));
 
@@ -223,8 +224,18 @@ public class TagTask {
             //初始化数据兼容处理
             if (sortedList.size() == 2) {
                 StockDaily yesterday = sortedList.get(1);
-                if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 && today.getClose().compareTo(yesterday.getClose()) <= 0) {
+                if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 //昨天阴线 //今日阳线
+                        && today.getClose().compareTo(yesterday.getClose()) <= 0) {//今天收盘价小于等于昨天的收盘价
                     resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN_GUXING.getCode(), date));
+                } else if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0//昨天阴线 //今日阳线
+                        && today.getClose().compareTo(yesterday.getClose()) >= 0 //今日收盘价大于等于昨日收盘价
+                        && today.getClose().compareTo(yesterday.getOpen()) <= 0 //今日收盘价小于等于昨日开盘价
+                        && today.getOpen().compareTo(yesterday.getClose()) <= 0) {//今日开盘价小于昨日收盘价
+                    resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_INSERTION.getCode(), date));
+                } else if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 //昨天阴线 //今日阳线
+                        && today.getOpen().compareTo(yesterday.getClose()) <= 0//今日开盘价小于昨日收盘价
+                        && today.getClose().compareTo(yesterday.getOpen()) >= 0) {//今日收盘价大于等于昨日开盘价
+                    resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_HUG.getCode(), date));
                 }
             }
         } else if (todayChange.compareTo(BigDecimal.ZERO) < 0) {

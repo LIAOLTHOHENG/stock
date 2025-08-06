@@ -1,6 +1,5 @@
 package com.xzp.forum.controller;
 
-import com.google.common.collect.Lists;
 import com.xzp.forum.enums.LeafTag;
 import com.xzp.forum.mapper.NormalMapper;
 import com.xzp.forum.mapper.UserTagRelationMapper;
@@ -14,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,7 +40,21 @@ public class QueryController {
     public List<StocksByIndustry> realtime() {
         dailySchedule.runRealTime();
         realTimeTagTask.setUserTag(null, Arrays.asList(LeafTag.YANGXIAN_GUXING));
-        return normalMapper.getStocksByIndustry();
+        return normalMapper.getRealtimeStocksByIndustry(new ArrayList<>() {{
+            add(LeafTag.YANGXIAN_GUXING.getId());
+        }});
+    }
+
+    /**
+     * 获取实时数据 v2 新增了标签
+     *
+     * @return
+     */
+    @PostMapping("/realtime/v2")
+    public List<StocksByIndustry> realtimev2() {
+        dailySchedule.runRealTime();
+        realTimeTagTask.setUserTag(null, Arrays.asList(LeafTag.YANGXIAN_GUXING));
+        return normalMapper.getRealtimeStocksByIndustry(LeafTag.getUpTags().stream().map(LeafTag::getId).collect(Collectors.toList()));
     }
 
     /**
@@ -50,16 +65,51 @@ public class QueryController {
     @PostMapping("/realtimestrict")
     public List<StocksByIndustry> realtimestrict(@RequestBody RealtimeStrict req) {
         dailySchedule.runRealTime();
-        realTimeTagTask.setUserTag(null, Arrays.asList(LeafTag.YANGXIAN_GUXING));
+        realTimeTagTask.setUserTag(null, Arrays.asList(LeafTag.YANGXIAN_GUXING, LeafTag.UP_HUG, LeafTag.UP_INSERTION));
         List<Long> upTagIds = LeafTag.getUpTags().stream().map(LeafTag::getId).collect(Collectors.toList());
-        List<StocksByIndustry> stocks = normalMapper.getStocksByIndustryStrict(req.getDays(), req.getFqc(), upTagIds);
+        List<StocksByIndustry> stocks = normalMapper.getRealtimeStocksByIndustryStrict(req.getDays(), req.getFrequency(), upTagIds);
+        return stocks;
+    }
 
+    /**
+     * 获取盘后数据 严格版
+     *
+     * @return
+     */
+    @PostMapping("/after3")
+    public List<StocksByIndustry> after3(@RequestBody RealtimeStrict req) {
+        List<StocksByIndustry> stocks = normalMapper.getAfter3StocksByIndustry(LocalDate.now(), new ArrayList<>() {{
+            add(LeafTag.YANGXIAN_GUXING.getId());
+        }});
+        return stocks;
+    }
+
+    /**
+     * 获取盘后数据 严格版
+     *
+     * @return
+     */
+    @PostMapping("/after3/v2")
+    public List<StocksByIndustry> after3v2(@RequestBody RealtimeStrict req) {
+        List<StocksByIndustry> stocks = normalMapper.getAfter3StocksByIndustry(LocalDate.now(), LeafTag.getUpTags().stream().map(LeafTag::getId).collect(Collectors.toList()));
+        return stocks;
+    }
+
+    /**
+     * 获取盘后数据 严格版
+     *
+     * @return
+     */
+    @PostMapping("/after3strict")
+    public List<StocksByIndustry> after3strict(@RequestBody RealtimeStrict req) {
+        List<Long> upTagIds = LeafTag.getUpTags().stream().map(LeafTag::getId).collect(Collectors.toList());
+        List<StocksByIndustry> stocks = normalMapper.getAfter3StocksByIndustryStrict(LocalDate.now(), req.getDays(), req.getFrequency(), upTagIds);
         return stocks;
     }
 
     @Data
     static class RealtimeStrict {
         private int days = 5;
-        private int fqc = 1;
+        private int frequency = 1;
     }
 }

@@ -7,9 +7,7 @@ import com.xzp.forum.enums.LeafTag;
 import com.xzp.forum.mapper.*;
 import com.xzp.forum.model.StockBasic;
 import com.xzp.forum.model.StockDaily;
-import com.xzp.forum.model.UserTagDTO;
 import com.xzp.forum.model.UserTagRealtimeDTO;
-import com.xzp.forum.model.UserTagRelation;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -179,8 +177,18 @@ public class RealtimeTagTask {
                 List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, LocalDate.now(), 1);
                 if (sortedList.size() == 1) {
                     StockDaily yesterday = sortedList.get(0);
-                    if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 && realTime.getClose().compareTo(yesterday.getClose()) <= 0) {
+                    if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 //昨天阴线 //今日阳线
+                            && realTime.getClose().compareTo(yesterday.getClose()) <= 0) {//今天收盘价小于等于昨天的收盘价
                         resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN_GUXING.getCode()));
+                    } else if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0//昨天阴线 //今日阳线
+                            && realTime.getClose().compareTo(yesterday.getClose()) >= 0 //今日收盘价大于等于昨日收盘价
+                            && realTime.getClose().compareTo(yesterday.getOpen()) <= 0 //今日收盘价小于等于昨日开盘价
+                            && realTime.getOpen().compareTo(yesterday.getClose()) <= 0) {//今日开盘价小于昨日收盘价
+                        resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_INSERTION.getCode()));
+                    } else if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 //昨天阴线 //今日阳线
+                            && realTime.getOpen().compareTo(yesterday.getClose()) <= 0//今日开盘价小于昨日收盘价
+                            && realTime.getClose().compareTo(yesterday.getOpen()) >= 0) {//今日收盘价大于等于昨日开盘价
+                        resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_HUG.getCode()));
                     }
                 }
             } else if (todayChange.compareTo(BigDecimal.ZERO) < 0) {

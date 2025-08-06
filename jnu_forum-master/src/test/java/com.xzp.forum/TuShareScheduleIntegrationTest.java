@@ -104,10 +104,12 @@ class TuShareScheduleIntegrationTest {
     }
 
     @Test
-    void reRunTag() {
-        // 重跑7月2日到7月25日的交易日的标签数据
-        LocalDate startDate = LocalDate.of(2025, 7, 2);
-        LocalDate endDate = LocalDate.of(2025, 7, 31);
+    void forDebugTag() {
+        userTagRelationMapper.deleteAll();
+        dailyReportMapper.deleteAll();
+
+        LocalDate startDate = LocalDate.of(2025, 7, 1);
+        LocalDate endDate = LocalDate.now();
         LocalDate currentDate = startDate;
 
         while (!currentDate.isAfter(endDate)) {
@@ -115,17 +117,13 @@ class TuShareScheduleIntegrationTest {
             if (currentDate.getDayOfWeek().getValue() <= 5) {
 
                 try {
-                    tagTask.setUserTag(null, currentDate, Arrays.asList(LeafTag.YINXIAN_GUXING));
+                    String tradeDate = currentDate.format(DateTimeFormatter.BASIC_ISO_DATE);
+                    tagTask.setUserTag(null, currentDate, null);
+                    dailySchedule.runDailyReport(tradeDate);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                // 防止请求过频，适当休眠
-                try {
-                    Thread.sleep(150);
-                } catch (InterruptedException ignored) {
-                }
             }
-
             // 移动到下一天
             currentDate = currentDate.plusDays(1);
         }

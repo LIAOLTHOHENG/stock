@@ -15,12 +15,6 @@ public enum LeafTag {
     CAN_DEAL("CAN_DEAL", "属于创业板和主板", 3L, null),
     //缩量至平稳
     STABLE("STABLE", "缩量至平稳", 4L, null),
-    //插入线
-    INSERTION("INSERTION", "插入线", 5L, true),
-    //上涨抱线
-    UP_BOUNCE("UP_BOUNCE", "上涨抱线", 6L, true),
-    //阴线+孕线
-    DOWN_BOUNCE("DOWN_BOUNCE", "阴线+孕线", 7L, true),
     //跌幅实体越来越小
     DOWN_ENTITY("DOWN_ENTITY", "跌幅实体越来越小", 8L, null),
     //涨幅大于0
@@ -38,8 +32,18 @@ public enum LeafTag {
 
     YANGXIAN("YANGXIAN", "阳线", 15L, null),
     YINXIAN("YINXIAN", "阴线", 16L, null),
+
+
+    //插入线
+    UP_INSERTION("INSERTION", "插入线", 5L, true),
+    //上涨抱线
+    UP_HUG("UP_HUG", "上涨抱线", 6L, true),
+    //阴线+孕线
+    //UP_YUNXIAN("UP_YUNXIAN", "阴线+孕线", 7L, true),
     //
     YANGXIAN_GUXING("YANGXIAN_GUXING", "阳线且孤独", 17L, true),
+
+
 
     YINXIAN_GUXING("YINXIAN_GUXING", "阴线且孤独", 18L, false),
 
