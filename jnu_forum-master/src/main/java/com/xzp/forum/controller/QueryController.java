@@ -53,7 +53,7 @@ public class QueryController {
     @PostMapping("/realtime/v2")
     public List<StocksByIndustry> realtimev2() {
         dailySchedule.runRealTime();
-        realTimeTagTask.setUserTag(null, Arrays.asList(LeafTag.YANGXIAN_GUXING));
+        realTimeTagTask.setUserTag(null, Arrays.asList(LeafTag.YANGXIAN_GUXING, LeafTag.UP_HUG,LeafTag.UP_INSERTION));
         return normalMapper.getRealtimeStocksByIndustry(LeafTag.getUpTags().stream().map(LeafTag::getId).collect(Collectors.toList()));
     }
 
@@ -72,7 +72,7 @@ public class QueryController {
     }
 
     /**
-     * 获取盘后数据 严格版
+     * 获取盘后数据
      *
      * @return
      */
@@ -85,7 +85,7 @@ public class QueryController {
     }
 
     /**
-     * 获取盘后数据 严格版
+     * 获取盘后数据 多标签
      *
      * @return
      */
