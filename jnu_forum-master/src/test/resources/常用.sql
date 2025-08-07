@@ -99,31 +99,33 @@ SELECT
                 ORDER BY sd.amount DESC
         SEPARATOR ','
     ) AS names,
-    COUNT(*) AS tagCount
+        COUNT(*) AS tagCount
 FROM user_tag_relation_realtime utr
     LEFT JOIN stock_basic sb ON utr.symbol = sb.symbol
     LEFT JOIN stock_realtime sd ON sb.ts_code = sd.ts_code
-WHERE FTagId = 17
+WHERE 1=1
+  AND FTagId IN(5,6,17)
   AND sb.industry != '-'
   AND utr.symbol IN (
     SELECT symbol
     FROM user_tag_relation
-    WHERE FTagId = 17
+    WHERE 1=1
+  AND FTagId IN(5,6,17)
   AND date IN (
     SELECT date
     FROM (
     SELECT DISTINCT date
     FROM user_tag_relation
-    WHERE date <= '20250806'  -- 替换为当前日期
     ORDER BY date DESC
-    LIMIT 5
+    LIMIT 10
     ) AS recent_dates
     )
     GROUP BY symbol
-    HAVING COUNT(*) >= 1
+    HAVING COUNT(*) >= 3
     )
 GROUP BY sb.industry
 ORDER BY tagCount DESC;
+
 
 
 
