@@ -214,16 +214,26 @@ public class TagTask {
         } else {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.FLAT.getCode(), date));
         }
-        //振幅
+        List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, date, 2);
+        StockDaily yesterday = null;
+        if (sortedList.size() == 2) {
+            yesterday = sortedList.get(1);
+        }
+        //昨日振幅
+        BigDecimal yesterdayChange = yesterday.getClose().subtract(yesterday.getOpen());
+        if (yesterdayChange.compareTo(BigDecimal.ZERO) <= 0//昨日阴线
+                && today.getOpen().compareTo(yesterday.getClose()) >= 0 && today.getClose().compareTo(yesterday.getClose()) >= 0 //今天开盘价，收盘价 均大于昨日收盘价
+                && today.getOpen().compareTo(yesterday.getOpen()) <= 0 && today.getClose().compareTo(yesterday.getOpen()) <= 0) {//今天开盘价，收盘价 均小于昨日开盘价
+            resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_YUNXIAN.getCode(), date));
+        }
+        //今日振幅
         BigDecimal todayChange = today.getClose().subtract(today.getOpen());
         //今日阳线
         if (todayChange.compareTo(BigDecimal.ZERO) > 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN.getCode(), date));
 
-            List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, date, 2);
             //初始化数据兼容处理
-            if (sortedList.size() == 2) {
-                StockDaily yesterday = sortedList.get(1);
+            if (yesterday != null) {
                 if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 //昨天阴线 //今日阳线
                         && today.getClose().compareTo(yesterday.getClose()) <= 0) {//今天收盘价小于等于昨天的收盘价
                     resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN_GUXING.getCode(), date));
@@ -240,10 +250,8 @@ public class TagTask {
             }
         } else if (todayChange.compareTo(BigDecimal.ZERO) < 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YINXIAN.getCode(), date));
-            List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, date, 2);
             //初始化数据兼容处理
-            if (sortedList.size() == 2) {
-                StockDaily yesterday = sortedList.get(1);
+            if (yesterday != null) {
                 if (yesterday.getClose().compareTo(yesterday.getOpen()) > 0 && today.getClose().compareTo(yesterday.getClose()) >= 0) {
                     resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YINXIAN_GUXING.getCode(), date));
                 }

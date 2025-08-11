@@ -170,13 +170,23 @@ public class RealtimeTagTask {
             if (realTime == null) {
                 return new ArrayList<>();
             }
-            //振幅
+            List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, LocalDate.now(), 1);
+            StockDaily yesterday = null;
+            if (sortedList.size() == 1) {
+                yesterday = sortedList.get(0);
+            }
+            //昨日振幅
+            BigDecimal yesterdayChange = yesterday.getClose().subtract(yesterday.getOpen());
+            if (yesterdayChange.compareTo(BigDecimal.ZERO) <= 0//昨日阴线
+                    && realTime.getOpen().compareTo(yesterday.getClose()) >= 0 && realTime.getClose().compareTo(yesterday.getClose()) >= 0 //今天开盘价，收盘价 均大于昨日收盘价
+                    && realTime.getOpen().compareTo(yesterday.getOpen()) <= 0 && realTime.getClose().compareTo(yesterday.getOpen()) <= 0) {//今天开盘价，收盘价 均小于昨日开盘价
+                resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_YUNXIAN.getCode()));
+            }
+            //今日振幅
             BigDecimal todayChange = realTime.getClose().subtract(realTime.getOpen());
             if (todayChange.compareTo(BigDecimal.ZERO) > 0) {
                 //实时任务里 查最近一条肯定是昨天的（因为今天的盘后才更新）
-                List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, LocalDate.now(), 1);
-                if (sortedList.size() == 1) {
-                    StockDaily yesterday = sortedList.get(0);
+                if (yesterday != null) {
                     if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 //昨天阴线 //今日阳线
                             && realTime.getClose().compareTo(yesterday.getClose()) <= 0) {//今天收盘价小于等于昨天的收盘价
                         resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN_GUXING.getCode()));
@@ -192,9 +202,7 @@ public class RealtimeTagTask {
                     }
                 }
             } else if (todayChange.compareTo(BigDecimal.ZERO) < 0) {
-                List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, LocalDate.now(), 1);
-                if (sortedList.size() == 1) {
-                    StockDaily yesterday = sortedList.get(0);
+                if (yesterday != null) {
                     if (yesterday.getClose().compareTo(yesterday.getOpen()) > 0 && realTime.getClose().compareTo(yesterday.getClose()) >= 0) {
                         resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YINXIAN_GUXING.getCode()));
                     }

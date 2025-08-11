@@ -39,7 +39,7 @@ public enum LeafTag {
     //上涨抱线
     UP_HUG("UP_HUG", "上涨抱线", 6L, true),
     //阴线+孕线
-    //UP_YUNXIAN("UP_YUNXIAN", "阴线+孕线", 7L, true),
+    UP_YUNXIAN("UP_YUNXIAN", "阴线+孕线", 7L, true),
     //
     YANGXIAN_GUXING("YANGXIAN_GUXING", "阳线且孤独", 17L, true),
 
