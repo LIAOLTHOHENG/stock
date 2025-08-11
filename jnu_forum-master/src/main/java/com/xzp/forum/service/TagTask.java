@@ -222,8 +222,8 @@ public class TagTask {
         //昨日振幅
         BigDecimal yesterdayChange = yesterday.getClose().subtract(yesterday.getOpen());
         if (yesterdayChange.compareTo(BigDecimal.ZERO) <= 0//昨日阴线
-                && today.getOpen().compareTo(yesterday.getClose()) >= 0 && today.getClose().compareTo(yesterday.getClose()) >= 0 //今天开盘价，收盘价 均大于昨日收盘价
-                && today.getOpen().compareTo(yesterday.getOpen()) <= 0 && today.getClose().compareTo(yesterday.getOpen()) <= 0) {//今天开盘价，收盘价 均小于昨日开盘价
+                && today.getOpen().compareTo(yesterday.getClose()) > 0 && today.getClose().compareTo(yesterday.getClose()) > 0 //今天开盘价，收盘价 均大于昨日收盘价
+                && today.getOpen().compareTo(yesterday.getOpen()) < 0 && today.getClose().compareTo(yesterday.getOpen()) < 0) {//今天开盘价，收盘价 均小于昨日开盘价
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_YUNXIAN.getCode(), date));
         }
         //今日振幅

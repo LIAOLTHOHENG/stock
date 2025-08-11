@@ -178,8 +178,8 @@ public class RealtimeTagTask {
             //昨日振幅
             BigDecimal yesterdayChange = yesterday.getClose().subtract(yesterday.getOpen());
             if (yesterdayChange.compareTo(BigDecimal.ZERO) <= 0//昨日阴线
-                    && realTime.getOpen().compareTo(yesterday.getClose()) >= 0 && realTime.getClose().compareTo(yesterday.getClose()) >= 0 //今天开盘价，收盘价 均大于昨日收盘价
-                    && realTime.getOpen().compareTo(yesterday.getOpen()) <= 0 && realTime.getClose().compareTo(yesterday.getOpen()) <= 0) {//今天开盘价，收盘价 均小于昨日开盘价
+                    && realTime.getOpen().compareTo(yesterday.getClose()) > 0 && realTime.getClose().compareTo(yesterday.getClose()) > 0 //今天开盘价，收盘价 均大于昨日收盘价
+                    && realTime.getOpen().compareTo(yesterday.getOpen()) < 0 && realTime.getClose().compareTo(yesterday.getOpen()) < 0) {//今天开盘价，收盘价 均小于昨日开盘价
                 resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_YUNXIAN.getCode()));
             }
             //今日振幅

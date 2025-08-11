@@ -12,6 +12,7 @@
         ELSE CONCAT(ROUND(SUM(sd.amount) / 10000, 2), '万')
         END AS totalAmountWithUnit,
         GROUP_CONCAT(
+        distinct
         CONCAT(
         sb.name,
         '(',
@@ -47,6 +48,7 @@
         ELSE CONCAT(ROUND(SUM(sd.amount)/10000, 2), '万')
         END AS totalAmountWithUnit,
         GROUP_CONCAT(
+         distinct
         CONCAT(
         sb.name,
         '(',
@@ -104,6 +106,7 @@
         ELSE CONCAT(ROUND(SUM(sd.amount) / 10, 2), '万')
         END AS totalAmountWithUnit,
         GROUP_CONCAT(
+         distinct
         CONCAT(
         sb.name,
         '(',
@@ -140,6 +143,7 @@
         ELSE CONCAT(ROUND(SUM(sd.amount)/10, 2), '万')
         END AS totalAmountWithUnit,
         GROUP_CONCAT(
+        distinct
         CONCAT(
         sb.name,
         '(',
