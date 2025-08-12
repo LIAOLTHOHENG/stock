@@ -15,10 +15,12 @@ class RealtimeTest {
     private RealtimeTagTask realTimeTagTask;
     @Resource
     private DailySchedule dailySchedule;
+
     @Test
     public void runRealtime() {
         dailySchedule.runRealTime();
-        realTimeTagTask.setUserTag(null, Arrays.asList(LeafTag.YANGXIAN_GUXING));
+        realTimeTagTask.setUserTag(null, Arrays.asList(LeafTag.YANGXIAN_GUXING, LeafTag.UP_INSERTION,
+                LeafTag.UP_HUG, LeafTag.UP_YUNXIAN));
     }
 }
 
