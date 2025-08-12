@@ -8,6 +8,7 @@ import com.xzp.forum.service.DailySchedule;
 import com.xzp.forum.service.RealtimeTagTask;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -105,6 +106,19 @@ public class QueryController {
         List<Long> upTagIds = LeafTag.getUpTags().stream().map(LeafTag::getId).collect(Collectors.toList());
         List<StocksByIndustry> stocks = normalMapper.getAfter3StocksByIndustryStrict(LocalDate.now(), req.getDays(), req.getFrequency(), upTagIds);
         return stocks;
+    }
+
+    /**
+     * 刷新数据
+     * @param req
+     * @return
+     */
+    @GetMapping("/fresh_realtime")
+    public String afrshRealTime() {
+        dailySchedule.runRealTime();
+        realTimeTagTask.setUserTag(null, Arrays.asList(LeafTag.YANGXIAN_GUXING, LeafTag.UP_INSERTION,
+                LeafTag.UP_HUG, LeafTag.UP_YUNXIAN));
+        return "done";
     }
 
     @Data
