@@ -7,11 +7,13 @@ import com.xzp.forum.enums.LeafTag;
 import com.xzp.forum.service.EastMoneyCrawler;
 import com.xzp.forum.service.TagTask;
 import com.xzp.forum.service.DailySchedule;
+import com.xzp.forum.util.StockUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
@@ -127,6 +129,13 @@ class TuShareScheduleIntegrationTest {
             // 移动到下一天
             currentDate = currentDate.plusDays(1);
         }
+    }
+
+    //测试成交量估算
+    @Test
+    void testEstimateDailyVolume(){
+        //System.out.println(StockUtil.estimateDailyVolume(LocalDateTime.of(2025, 7, 30, 12, 01), 3664));
+        System.out.println(StockUtil.estimateDailyVolume(LocalDateTime.of(2025, 7, 30, 13, 01), 3664));
     }
 
 }
