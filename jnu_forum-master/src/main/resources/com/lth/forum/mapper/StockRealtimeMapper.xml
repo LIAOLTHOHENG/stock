@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lth.forum.mapper.StockRealtimeMapper">
+
+    <resultMap id="BaseResultMap" type="com.lth.forum.domain.StockRealtime">
+            <id property="id" column="id" />
+            <result property="tsCode" column="ts_code" />
+            <result property="name" column="name" />
+            <result property="open" column="open" />
+            <result property="high" column="high" />
+            <result property="low" column="low" />
+            <result property="close" column="close" />
+            <result property="preClose" column="pre_close" />
+            <result property="preOpen" column="pre_open" />
+            <result property="preLow" column="pre_low" />
+            <result property="preHigh" column="pre_high" />
+            <result property="change" column="change" />
+            <result property="pctChg" column="pct_chg" />
+            <result property="vol" column="vol" />
+            <result property="amount" column="amount" />
+            <result property="createTime" column="create_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,ts_code,name,open,high,low,
+        close,pre_close,pre_open,vol,amount,create_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from stock_realtime
+        where  id = #{id} 
+    </select>
+    <select id="selectByTsCode" resultType="com.lth.forum.domain.StockRealtime">
+        select
+        <include refid="Base_Column_List" />
+        from stock_realtime
+        where  ts_code = #{tsCode}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from stock_realtime
+        where  id = #{id} 
+    </delete>
+    <delete id="deleteAll">
+         delete from stock_realtime
+    </delete>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.lth.forum.domain.StockRealtime" useGeneratedKeys="true">
+        insert into stock_realtime
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="tsCode != null">ts_code,</if>
+                <if test="name != null">name,</if>
+                <if test="open != null">open,</if>
+                <if test="high != null">high,</if>
+                <if test="low != null">low,</if>
+                <if test="close != null">close,</if>
+                <if test="preClose != null">pre_close,</if>
+                <if test="preOpen != null">pre_open,</if>
+                <if test="vol != null">vol,</if>
+                <if test="amount != null">amount,</if>
+                <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id},</if>
+                <if test="tsCode != null">#{tsCode},</if>
+                <if test="name != null">#{name},</if>
+                <if test="open != null">#{open},</if>
+                <if test="high != null">#{high},</if>
+                <if test="low != null">#{low},</if>
+                <if test="close != null">#{close},</if>
+                <if test="preClose != null">#{preClose},</if>
+                <if test="preOpen != null">#{preOpen},</if>
+                <if test="vol != null">#{vol},</if>
+                <if test="amount != null">#{amount},</if>
+                <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+    <insert id="batchInsert">
+        insert into stock_realtime
+        ( id,ts_code,name,open,high,low,
+        close,pre_close,pre_open,vol,amount,create_time)
+        values
+        <foreach collection="list" item="record" separator=",">
+            (#{record.id},#{record.tsCode},#{record.name},#{record.open},#{record.high},#{record.low},
+            #{record.close},#{record.preClose},#{record.preOpen},#{record.vol},#{record.amount},#{record.createTime})
+        </foreach>
+    </insert>
+</mapper>
