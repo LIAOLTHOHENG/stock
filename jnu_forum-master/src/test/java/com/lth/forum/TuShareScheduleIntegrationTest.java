@@ -129,11 +129,4 @@ class TuShareScheduleIntegrationTest {
         }
     }
 
-    //测试成交量估算
-    @Test
-    void testEstimateDailyVolume(){
-        //System.out.println(StockUtil.estimateDailyVolume(LocalDateTime.of(2025, 7, 30, 12, 01), 3664));
-        System.out.println(StockUtil.estimateDailyVolume(LocalDateTime.of(2025, 7, 30, 13, 01), 3664));
-    }
-
 }

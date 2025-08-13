@@ -20,7 +20,7 @@ class RealtimeTest {
     public void runRealtime() {
         dailySchedule.runRealTime();
         realTimeTagTask.setUserTag(null, Arrays.asList(LeafTag.YANGXIAN_GUXING, LeafTag.UP_INSERTION,
-                LeafTag.UP_HUG, LeafTag.UP_YUNXIAN));
+                LeafTag.UP_HUG, LeafTag.UP_YUNXIAN,LeafTag.STABLE_VOLUME));
     }
 }
 

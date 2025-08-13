@@ -47,6 +47,9 @@ public enum LeafTag {
 
     YINXIAN_GUXING("YINXIAN_GUXING", "阴线且孤独", 18L, false),
 
+    //8开头 成交量相关
+    STABLE_VOLUME("STABLE_VOLUME", "成交量稳定", 801L, null),
+
     ;
     private final String code;
     private final String description;

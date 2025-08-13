@@ -11,6 +11,7 @@ import com.lth.forum.model.StockDaily;
 import com.lth.forum.domain.StockRealtime;
 import com.lth.forum.domain.UserTagRelationRealtime;
 import com.lth.forum.model.UserTagRealtimeDTO;
+import com.lth.forum.util.StockUtil;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -173,9 +174,9 @@ public class RealtimeTagTask {
             if (realTime == null) {
                 return new ArrayList<>();
             }
-            List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, LocalDate.now(), 1);
+            List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, LocalDate.now(), 5);
             StockDaily yesterday = null;
-            if (sortedList.size() == 1) {
+            if (!CollectionUtils.isEmpty(sortedList)) {
                 yesterday = sortedList.get(0);
             }
             if (yesterday != null) {
@@ -187,6 +188,40 @@ public class RealtimeTagTask {
                     resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_YUNXIAN.getCode()));
                 }
             }
+            //成交量相关的
+            if (sortedList.size() == 5) {
+                long vol = realTime.getVol().longValue();
+                long estimatedVol = StockUtil.estimateDailyVolume(LocalDateTime.now(), vol);
+                //找出相对高点 以及对应的下标
+                long anchor = 0;
+                int index = 0;
+                for (int i = 0; i < sortedList.size(); i++) {
+                    StockDaily stockDaily = sortedList.get(i);
+                    //更新锚点
+                    if (stockDaily.getVol().longValue() > anchor) {
+                        anchor = stockDaily.getVol().longValue();
+                        index = i;
+                    }
+                }
+                //平缓向下，如果向上，不可超过锚点的10%
+                long minAnchor = anchor;
+                boolean fail = false;
+                for (int i = index; i < sortedList.size(); i++) {
+                    StockDaily stockDaily = sortedList.get(i);
+                    long todayVol = stockDaily.getVol().longValue();
+                    if (todayVol <= minAnchor) {
+                        //向下 先更新
+                        minAnchor = todayVol;
+                    } else if (todayVol >= anchor * 1.1) {
+                        fail = true;
+                        break;
+                    }
+                }
+                if (!fail) {
+                    resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.STABLE_VOLUME.getCode()));
+                }
+            }
+
             //今日振幅
             BigDecimal todayChange = realTime.getClose().subtract(realTime.getOpen());
             if (todayChange.compareTo(BigDecimal.ZERO) > 0) {
