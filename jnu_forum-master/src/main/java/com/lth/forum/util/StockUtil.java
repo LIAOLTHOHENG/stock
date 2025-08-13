@@ -71,7 +71,10 @@ public class StockUtil {
 
         // 如果不在交易时间内
         if (time.isBefore(LocalTime.of(9, 30)) || time.isAfter(LocalTime.of(15, 0))) {
-            throw new IllegalArgumentException("当前时间不在交易时间内");
+            return 0L;
+        }
+        if (time.isAfter(LocalTime.of(15, 0))) {
+            return currentVolume;
         }
 
         // 如果是午休时间，使用上午结束时的权重(65.5%)
