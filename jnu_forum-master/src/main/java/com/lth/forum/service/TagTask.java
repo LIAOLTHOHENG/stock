@@ -200,7 +200,11 @@ public class TagTask {
         List<UserTagDTO> resultList = new ArrayList<>();
 
         //涨跌幅
-        StockDaily today = stockDailyMapper.selectByTsCodeAndDate(stock.getTsCode(), date);
+        List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, date, 5);
+        StockDaily today = null;
+        if (sortedList.size() > 0) {
+            today = sortedList.get(0);
+        }
         //st退市股
         if (today == null) {
             return new ArrayList<>();
@@ -213,9 +217,8 @@ public class TagTask {
         } else {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.FLAT.getCode(), date));
         }
-        List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, date, 2);
         StockDaily yesterday = null;
-        if (sortedList.size() == 2) {
+        if (!CollectionUtils.isEmpty(sortedList) && sortedList.size() > 1) {
             yesterday = sortedList.get(1);
         }
         //昨日振幅
@@ -225,12 +228,50 @@ public class TagTask {
                 && today.getOpen().compareTo(yesterday.getOpen()) < 0 && today.getClose().compareTo(yesterday.getOpen()) < 0) {//今天开盘价，收盘价 均小于昨日开盘价
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_YUNXIAN.getCode(), date));
         }
+        //成交量相关的
+        if (sortedList.size() == 5) {
+            boolean fail = false;
+            long vol = today.getVol().longValue();
+            //从前往后 找出最高点 以及对应的下标
+            long anchor = 0;
+            int index = 0;
+            for (int i = sortedList.size() - 1; i >= 0; i--) {
+                StockDaily stockDaily = sortedList.get(i);
+                //更新锚点
+                if (stockDaily.getVol().longValue() > anchor) {
+                    anchor = stockDaily.getVol().longValue();
+                    index = i;
+                }
+            }
+            //当前量最大
+            if (index <= 1) {
+                fail = true;
+            }
+            if (!fail) {
+                //平缓向下，如果向上，不可超过锚点的10%
+                for (int i = index; i >= 1; i--) {
+                    StockDaily thisDay = sortedList.get(i);
+                    StockDaily nextDay = sortedList.get(i - 1);
+                    if (nextDay == null || nextDay == null) {
+                        break;
+                    }
+                    long todayVol = thisDay.getVol().longValue();
+                    long nextDayVol = nextDay.getVol().longValue();
+                    if (nextDayVol > todayVol * StockUtil.stable) {
+                        fail = true;
+                        break;
+                    }
+                }
+            }
+            if (!fail) {
+                resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.STABLE_VOLUME.getCode(), date));
+            }
+        }
         //今日振幅
         BigDecimal todayChange = today.getClose().subtract(today.getOpen());
         //今日阳线
         if (todayChange.compareTo(BigDecimal.ZERO) > 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN.getCode(), date));
-
             //初始化数据兼容处理
             if (yesterday != null) {
                 if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 //昨天阴线 //今日阳线

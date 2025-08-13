@@ -21,6 +21,8 @@ public class StockUtil {
             0.043, 0.037, 0.038, 0.039, 0.049, 0.084
     };
 
+    public static double stable = 1.3;
+
     /**
      * 判断是否是受限制的股票（科创板/北交所）
      */
@@ -70,7 +72,7 @@ public class StockUtil {
         LocalTime time = currentTime.toLocalTime();
 
         // 如果不在交易时间内
-        if (time.isBefore(LocalTime.of(9, 30)) || time.isAfter(LocalTime.of(15, 0))) {
+        if (time.isBefore(LocalTime.of(9, 30))) {
             return 0L;
         }
         if (time.isAfter(LocalTime.of(15, 0))) {

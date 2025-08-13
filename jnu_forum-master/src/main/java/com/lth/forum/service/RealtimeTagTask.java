@@ -174,7 +174,7 @@ public class RealtimeTagTask {
             if (realTime == null) {
                 return new ArrayList<>();
             }
-            List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, LocalDate.now(), 5);
+            List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, LocalDate.now().minusDays(1), 5);
             StockDaily yesterday = null;
             if (!CollectionUtils.isEmpty(sortedList)) {
                 yesterday = sortedList.get(0);
@@ -192,10 +192,6 @@ public class RealtimeTagTask {
             if (sortedList.size() == 5) {
                 boolean fail = false;
                 long vol = realTime.getVol().longValue();
-                long estimatedVol = StockUtil.estimateDailyVolume(LocalDateTime.now(), vol);
-                sortedList.add(0, new StockDaily() {{
-                    setVol(new BigDecimal(estimatedVol));
-                }});
                 //从前往后 找出最高点 以及对应的下标
                 long anchor = 0;
                 int index = 0;
@@ -208,20 +204,20 @@ public class RealtimeTagTask {
                     }
                 }
                 //当前量最大
-                if (index == 0) {
+                if (index <= 1) {
                     fail = true;
                 }
                 if (!fail) {
                     //平缓向下，如果向上，不可超过锚点的10%
-                    for (int i = sortedList.size() - 1; i >= index; i--) {
-                        StockDaily stockDaily = sortedList.get(i);
-                        StockDaily last = i == index ? null : sortedList.get(i - 1);
-                        if(last == null){
+                    for (int i = index; i >= 1; i--) {
+                        StockDaily thisDay = sortedList.get(i);
+                        StockDaily nextDay = sortedList.get(i - 1);
+                        if (nextDay == null || nextDay == null) {
                             break;
                         }
-                        long todayVol = stockDaily.getVol().longValue();
-                        long lastVol = last.getVol().longValue();
-                        if (todayVol > lastVol * 1.1) {
+                        long todayVol = thisDay.getVol().longValue();
+                        long nextDayVol = nextDay.getVol().longValue();
+                        if (nextDayVol > todayVol * StockUtil.stable) {
                             fail = true;
                             break;
                         }
