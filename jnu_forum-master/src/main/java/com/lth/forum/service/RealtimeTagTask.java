@@ -191,7 +191,10 @@ public class RealtimeTagTask {
             //成交量相关的
             if (sortedList.size() == 5) {
                 boolean fail = false;
-                long vol = realTime.getVol().longValue();
+                long vol = StockUtil.estimateDailyVolume(LocalDateTime.now(), realTime.getVol().longValue())/100;
+                sortedList.add(0, new StockDaily() {{
+                    setVol(new BigDecimal(vol));
+                }});
                 //从前往后 找出最高点 以及对应的下标
                 long anchor = 0;
                 int index = 0;
@@ -205,7 +208,10 @@ public class RealtimeTagTask {
                 }
                 //当前量最大
                 if (index <= 1) {
-                    fail = true;
+                    StockDaily last = sortedList.get(index + 1);
+                    if (last.getVol().longValue() * StockUtil.stable < anchor) {
+                        fail = true;
+                    }
                 }
                 if (!fail) {
                     //平缓向下，如果向上，不可超过锚点的10%

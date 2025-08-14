@@ -32,7 +32,7 @@ public class InterfaceAspect {
     /**
      * 切点拦截controller层所有接口
      */
-    @Pointcut("execution(public * com.xzp.forum.controller..*.*(..))")
+    @Pointcut("execution(public * com.lth.forum.controller..*.*(..))")
     public void webLog() {
     }
 

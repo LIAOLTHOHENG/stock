@@ -21,7 +21,7 @@ public class StockUtil {
             0.043, 0.037, 0.038, 0.039, 0.049, 0.084
     };
 
-    public static double stable = 1.3;
+    public static double stable = 1.5;
 
     /**
      * 判断是否是受限制的股票（科创板/北交所）
