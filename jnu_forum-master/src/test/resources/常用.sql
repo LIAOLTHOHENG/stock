@@ -68,17 +68,17 @@ WHERE 1=1
     SELECT DISTINCT date
     FROM user_tag_relation
     ORDER BY date DESC
-    LIMIT 5
+    LIMIT 9
     ) AS recent_dates
     )
     GROUP BY symbol
     HAVING COUNT(*) >= 2
     )
-/*  AND utr.symbol IN (
+  AND utr.symbol IN (
     SELECT symbol
     FROM user_tag_relation_realtime
     WHERE FTagId = 801
-    )*/
+    )
 GROUP BY sb.industry
 ORDER BY tagCount DESC;
 
