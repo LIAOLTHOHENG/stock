@@ -1,8 +1,8 @@
--- å®žæ—¶ tagid:17
+-- ÊµÊ± tagid:17
 SELECT sb.industry,
        CASE
-           WHEN SUM(sd.amount) >= 100000000 THEN CONCAT(ROUND(SUM(sd.amount) / 100000000, 2), 'äº¿')
-           ELSE CONCAT(ROUND(SUM(sd.amount) / 10000, 2), 'ä¸‡')
+           WHEN SUM(sd.amount) >= 100000000 THEN CONCAT(ROUND(SUM(sd.amount) / 100000000, 2), 'ÒÚ')
+           ELSE CONCAT(ROUND(SUM(sd.amount) / 10000, 2), 'Íò')
            END AS totalAmountWithUnit,
        GROUP_CONCAT(
            distinct
@@ -10,8 +10,8 @@ SELECT sb.industry,
         sb.name,
         '(',
         CASE
-        WHEN sd.amount >= 100000000 THEN CONCAT(ROUND(sd.amount / 100000000, 2), 'äº¿')
-        ELSE CONCAT(ROUND(sd.amount / 10000, 2), 'ä¸‡')
+        WHEN sd.amount >= 100000000 THEN CONCAT(ROUND(sd.amount / 100000000, 2), 'ÒÚ')
+        ELSE CONCAT(ROUND(sd.amount / 10000, 2), 'Íò')
         END,
         ')'
         ) ORDER BY sd.amount DESC
@@ -28,20 +28,20 @@ WHERE 1=1
 GROUP BY sb.industry
 ORDER BY tagCount DESC;
 
--- å®žæ—¶ tagid:5,6,7,17
+-- ÊµÊ± tagid:5,6,7,17
 SELECT
     sb.industry,
     CASE
-        WHEN SUM(sd.amount) >= 100000000 THEN CONCAT(ROUND(SUM(sd.amount) / 100000000, 2), 'äº¿')
-        ELSE CONCAT(ROUND(SUM(sd.amount)/10000, 2), 'ä¸‡')
+        WHEN SUM(sd.amount) >= 100000000 THEN CONCAT(ROUND(SUM(sd.amount) / 100000000, 2), 'ÒÚ')
+        ELSE CONCAT(ROUND(SUM(sd.amount)/10000, 2), 'Íò')
         END AS totalAmountWithUnit,
     GROUP_CONCAT(
             CONCAT(
                     sb.name,
                     '(',
                     CASE
-                        WHEN sd.amount >= 100000000 THEN CONCAT(ROUND(sd.amount / 100000000, 2), 'äº¿')
-                        ELSE CONCAT(ROUND(sd.amount / 10000, 2), 'ä¸‡')
+                        WHEN sd.amount >= 100000000 THEN CONCAT(ROUND(sd.amount / 100000000, 2), 'ÒÚ')
+                        ELSE CONCAT(ROUND(sd.amount / 10000, 2), 'Íò')
                         END,
                     "|",
                     round(((sd.close/sd.pre_close)-1)*100,2) ,'%'
@@ -74,22 +74,22 @@ WHERE 1=1
     GROUP BY symbol
     HAVING COUNT(*) >= 2
     )
-  AND utr.symbol IN (
+/*  AND utr.symbol IN (
     SELECT symbol
     FROM user_tag_relation_realtime
     WHERE FTagId = 801
-    )
+    )*/
 GROUP BY sb.industry
 ORDER BY tagCount DESC;
 
+select * from daily_report dr order by trade_date desc;
 
-
--- ç›˜åŽ
+-- ÅÌºó
 SELECT
     sb.industry,
     CASE
-        WHEN SUM(sd.amount) >= 100000 THEN CONCAT(ROUND(SUM(sd.amount) / 100000, 2), 'äº¿')
-        ELSE CONCAT(ROUND(SUM(sd.amount)/10, 2), 'ä¸‡')
+        WHEN SUM(sd.amount) >= 100000 THEN CONCAT(ROUND(SUM(sd.amount) / 100000, 2), 'ÒÚ')
+        ELSE CONCAT(ROUND(SUM(sd.amount)/10, 2), 'Íò')
         END AS totalAmountWithUnit,
     GROUP_CONCAT(
         distinct
@@ -97,8 +97,8 @@ SELECT
         sb.name,
         '(',
         CASE
-        WHEN sd.amount >= 100000 THEN CONCAT(ROUND(sd.amount / 100000, 2), 'äº¿')
-        ELSE CONCAT(ROUND(sd.amount / 10, 2), 'ä¸‡')
+        WHEN sd.amount >= 100000 THEN CONCAT(ROUND(sd.amount / 100000, 2), 'ÒÚ')
+        ELSE CONCAT(ROUND(sd.amount / 10, 2), 'Íò')
         END,
         "|",
         sd.pct_chg ,
