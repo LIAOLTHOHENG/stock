@@ -43,8 +43,6 @@ public enum LeafTag {
     //
     YANGXIAN_GUXING("YANGXIAN_GUXING", "阳线且孤独", 17L, true),
 
-
-
     YINXIAN_GUXING("YINXIAN_GUXING", "阴线且孤独", 18L, false),
 
     //8开头 成交量相关
