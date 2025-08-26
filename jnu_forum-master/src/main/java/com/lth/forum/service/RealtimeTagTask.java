@@ -11,6 +11,7 @@ import com.lth.forum.model.StockDaily;
 import com.lth.forum.domain.StockRealtime;
 import com.lth.forum.domain.UserTagRelationRealtime;
 import com.lth.forum.model.UserTagRealtimeDTO;
+import com.lth.forum.util.StockTagUtils;
 import com.lth.forum.util.StockUtil;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -175,8 +176,6 @@ public class RealtimeTagTask {
             if (realTime == null) {
                 return new ArrayList<>();
             }
-            //今日振幅
-            BigDecimal todayChange = realTime.getClose().subtract(realTime.getOpen());
             List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, LocalDate.now().minusDays(1), 5);
             StockDaily yesterday = null;
             if (!CollectionUtils.isEmpty(sortedList)) {
@@ -184,19 +183,13 @@ public class RealtimeTagTask {
             }
 
             if (yesterday != null) {
-                //昨日振幅
-                BigDecimal yesterdayChange = yesterday.getClose().subtract(yesterday.getOpen());
-                if (yesterdayChange.compareTo(BigDecimal.ZERO) <= 0//昨日阴线
-                        && realTime.getOpen().compareTo(yesterday.getClose()) > 0 && realTime.getClose().compareTo(yesterday.getClose()) > 0 //今天开盘价，收盘价 均大于昨日收盘价
-                        && realTime.getOpen().compareTo(yesterday.getOpen()) < 0 && realTime.getClose().compareTo(yesterday.getOpen()) < 0) {//今天开盘价，收盘价 均小于昨日开盘价
-                    resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_YUNXIAN.getCode()));
-                } else if (yesterdayChange.compareTo(BigDecimal.ZERO) <= 0
-                        && todayChange.divide(yesterday.getClose(), 2, RoundingMode.HALF_UP).abs().compareTo(new BigDecimal("0.01")) <= 0
-                        && realTime.getOpen().compareTo(yesterday.getClose()) < 0 && realTime.getClose().compareTo(yesterday.getClose()) < 0) {
-                    resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_SHIZI.getCode()));
-                }
+                // 处理共同的标签逻辑
+                StockTagUtils.processCommonTags(stock, realTime, yesterday, sortedList, (symbol, code) -> {
+                    resultList.add(buildTagRelation(symbol, code));
+                });
             }
-            //成交量相关的
+            
+            //成交量相关的 (盘中特殊处理)
             if (sortedList.size() == 5) {
                 boolean fail = false;
                 long vol = StockUtil.estimateDailyVolume(LocalDateTime.now(), realTime.getVol().longValue())/100;
@@ -226,7 +219,7 @@ public class RealtimeTagTask {
                     for (int i = index; i >= 1; i--) {
                         StockDaily thisDay = sortedList.get(i);
                         StockDaily nextDay = sortedList.get(i - 1);
-                        if (nextDay == null || nextDay == null) {
+                        if (nextDay == null || thisDay == null) {
                             break;
                         }
                         long todayVol = thisDay.getVol().longValue();
@@ -242,34 +235,11 @@ public class RealtimeTagTask {
                 }
             }
 
-
+            //今日振幅 (盘中特殊处理)
+            BigDecimal todayChange = realTime.getClose().subtract(realTime.getOpen());
             if (todayChange.divide(yesterday.getClose()).compareTo(new BigDecimal("0.01")) <= 0
                     && yesterday.getOpen().compareTo(yesterday.getClose()) > 0) {//振幅小于1% 昨日阴线
                 resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_SHIZI.getCode()));
-            }
-            if (todayChange.compareTo(BigDecimal.ZERO) > 0) {
-                //实时任务里 查最近一条肯定是昨天的（因为今天的盘后才更新）
-                if (yesterday != null) {
-                    if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 //昨天阴线 //今日阳线
-                            && realTime.getClose().compareTo(yesterday.getClose()) <= 0) {//今天收盘价小于等于昨天的收盘价
-                        resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN_GUXING.getCode()));
-                    } else if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0//昨天阴线 //今日阳线
-                            && realTime.getClose().compareTo(yesterday.getClose()) >= 0 //今日收盘价大于等于昨日收盘价
-                            && realTime.getClose().compareTo(yesterday.getOpen()) <= 0 //今日收盘价小于等于昨日开盘价
-                            && realTime.getOpen().compareTo(yesterday.getClose()) <= 0) {//今日开盘价小于昨日收盘价
-                        resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_INSERTION.getCode()));
-                    } else if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 //昨天阴线 //今日阳线
-                            && realTime.getOpen().compareTo(yesterday.getClose()) <= 0//今日开盘价小于昨日收盘价
-                            && realTime.getClose().compareTo(yesterday.getOpen()) >= 0) {//今日收盘价大于等于昨日开盘价
-                        resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_HUG.getCode()));
-                    }
-                }
-            } else if (todayChange.compareTo(BigDecimal.ZERO) < 0) {
-                if (yesterday != null) {
-                    if (yesterday.getClose().compareTo(yesterday.getOpen()) > 0 && realTime.getClose().compareTo(yesterday.getClose()) >= 0) {
-                        resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YINXIAN_GUXING.getCode()));
-                    }
-                }
             }
             return resultList;
         } catch (Exception e) {
