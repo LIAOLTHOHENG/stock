@@ -53,7 +53,7 @@ class TuShareScheduleIntegrationTest {
      */
     @Test
     void tag() {
-        tagTask.setUserTag("巨力索具", LocalDate.of(2025, 8, 13), null);
+        tagTask.setUserTag("东方财富", LocalDate.of(2025, 8, 26), null);
     }
 
     /**

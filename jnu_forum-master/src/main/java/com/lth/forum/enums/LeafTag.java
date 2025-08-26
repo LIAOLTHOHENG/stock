@@ -45,6 +45,7 @@ public enum LeafTag {
 
     YINXIAN_GUXING("YINXIAN_GUXING", "阴线且孤独", 18L, false),
 
+    UP_SHIZI("UP_SHIZI", "上涨十字星", 19L, true),
     //8开头 成交量相关
     STABLE_VOLUME("STABLE_VOLUME", "成交量稳定", 801L, null),
 

@@ -18,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -133,7 +134,7 @@ public class TagTask {
                             //非遍历用户即可得到的判断
                             finalAllNowList.addAll(nowList);
                         } catch (Exception ex) {
-                            System.out.println("error" + user.getSymbol());
+                            System.out.println("error" + "-" + user.getSymbol() + "-" + date);
                             ex.printStackTrace();
                         } finally {
                             countDownLatch.countDown();
@@ -223,10 +224,15 @@ public class TagTask {
         }
         //昨日振幅
         BigDecimal yesterdayChange = yesterday.getClose().subtract(yesterday.getOpen());
+        //今日振幅
+        BigDecimal todayChange = today.getClose().subtract(today.getOpen());
         if (yesterdayChange.compareTo(BigDecimal.ZERO) <= 0//昨日阴线
                 && today.getOpen().compareTo(yesterday.getClose()) > 0 && today.getClose().compareTo(yesterday.getClose()) > 0 //今天开盘价，收盘价 均大于昨日收盘价
                 && today.getOpen().compareTo(yesterday.getOpen()) < 0 && today.getClose().compareTo(yesterday.getOpen()) < 0) {//今天开盘价，收盘价 均小于昨日开盘价
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_YUNXIAN.getCode(), date));
+        } else if (yesterdayChange.compareTo(BigDecimal.ZERO) <= 0 && todayChange.divide(yesterday.getClose(), 2, RoundingMode.HALF_UP).abs().compareTo(new BigDecimal("0.01")) <= 0
+                && today.getOpen().compareTo(yesterday.getClose()) < 0 && today.getClose().compareTo(yesterday.getClose()) < 0) {
+            resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_SHIZI.getCode(), date));
         }
         //成交量相关的
         if (sortedList.size() == 5) {
@@ -267,8 +273,7 @@ public class TagTask {
                 resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.STABLE_VOLUME.getCode(), date));
             }
         }
-        //今日振幅
-        BigDecimal todayChange = today.getClose().subtract(today.getOpen());
+
         //今日阳线
         if (todayChange.compareTo(BigDecimal.ZERO) > 0) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.YANGXIAN.getCode(), date));
