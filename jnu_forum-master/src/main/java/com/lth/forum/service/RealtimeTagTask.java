@@ -188,7 +188,7 @@ public class RealtimeTagTask {
                     resultList.add(buildTagRelation(symbol, code));
                 });
             }
-            
+          /*
             //成交量相关的 (盘中特殊处理)
             if (sortedList.size() == 5) {
                 boolean fail = false;
@@ -237,10 +237,10 @@ public class RealtimeTagTask {
 
             //今日振幅 (盘中特殊处理)
             BigDecimal todayChange = realTime.getClose().subtract(realTime.getOpen());
-            if (todayChange.divide(yesterday.getClose()).compareTo(new BigDecimal("0.01")) <= 0
+            if (todayChange.divide(yesterday.getClose(),2).abs().compareTo(new BigDecimal("0.01")) <= 0
                     && yesterday.getOpen().compareTo(yesterday.getClose()) > 0) {//振幅小于1% 昨日阴线
                 resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_SHIZI.getCode()));
-            }
+            }*/
             return resultList;
         } catch (Exception e) {
             e.printStackTrace();

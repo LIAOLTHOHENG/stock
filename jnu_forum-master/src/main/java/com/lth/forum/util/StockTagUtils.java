@@ -28,8 +28,7 @@ public class StockTagUtils {
         BigDecimal todayChange;
         BigDecimal todayOpen;
         BigDecimal todayClose;
-        BigDecimal yesterdayClose = yesterday.getClose();
-        
+
         if (today instanceof StockDaily) {
             StockDaily todayStock = (StockDaily) today;
             todayChange = todayStock.getClose().subtract(todayStock.getOpen());

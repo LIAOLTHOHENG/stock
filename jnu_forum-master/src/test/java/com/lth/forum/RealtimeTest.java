@@ -19,8 +19,7 @@ class RealtimeTest {
     @Test
     public void runRealtime() {
         dailySchedule.runRealTime();
-        realTimeTagTask.setUserTag("五洲新春", Arrays.asList(LeafTag.YANGXIAN_GUXING, LeafTag.UP_INSERTION,
-                LeafTag.UP_HUG, LeafTag.UP_YUNXIAN,LeafTag.STABLE_VOLUME));
+        realTimeTagTask.setUserTag("中信重工", null);
     }
 }
 
