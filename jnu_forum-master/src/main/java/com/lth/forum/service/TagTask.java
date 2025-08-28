@@ -235,7 +235,7 @@ public class TagTask {
         if (StockLimitUtils.touchLimitUp(today)) {
             resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.TOUCH_ZHANGTING.getCode(), date));
         }
-
+        StockTagUtils.processUserTagList(resultList);
         return resultList;
     }
 

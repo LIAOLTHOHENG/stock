@@ -240,6 +240,7 @@ public class RealtimeTagTask {
                     && yesterday.getOpen().compareTo(yesterday.getClose()) > 0) {//振幅小于1% 昨日阴线
                 resultList.add(buildTagRelation(stock.getSymbol(), LeafTag.UP_SHIZI.getCode()));
             }*/
+            StockTagUtils.processUserTagList(resultList);
             return resultList;
         } catch (Exception e) {
             e.printStackTrace();

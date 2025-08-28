@@ -4,6 +4,8 @@ import com.lth.forum.enums.LeafTag;
 import com.lth.forum.model.StockDaily;
 import com.lth.forum.model.StockBasic;
 import com.lth.forum.domain.StockRealtime;
+import com.lth.forum.model.UserTagDTO;
+import com.lth.forum.model.UserTagRealtimeDTO;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -143,4 +145,45 @@ public class StockTagUtils {
             tagConsumer.accept(symbol, LeafTag.FLAT.getCode());
         }
     }
+
+    /**
+     * 处理用户标签列表，如果同时存在FtagId为1和2的元素，则删除FtagId为2的元素
+     *
+     * @param list 用户标签列表，支持UserTagDTO或UserTagRealtimeDTO类型
+     * @param <T>  泛型参数，必须包含getFtagId()方法
+     */
+    public static <T> void processUserTagList(List<T> list) {
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+
+        // 检查是否存在FtagId为1的元素
+        boolean hasFtagId1 = list.stream().anyMatch(item -> getFtagId(item) == LeafTag.YANGXIAN_GUXING.getId());
+        // 检查是否存在FtagId为2的元素
+        boolean hasFtagId2 = list.stream().anyMatch(item -> getFtagId(item) == LeafTag.UP_SHIZI.getId());
+
+        // 如果同时存在FtagId为1和2的元素，则删除FtagId为2的元素
+        if (hasFtagId1 && hasFtagId2) {
+            list.removeIf(item -> getFtagId(item) == LeafTag.UP_SHIZI.getId());
+        }
+    }
+
+    /**
+     * 获取对象的FtagId值
+     *
+     * @param item 对象实例
+     * @param <T>  对象类型
+     * @return FtagId值
+     */
+    private static <T> Long getFtagId(T item) {
+        if (item instanceof UserTagDTO) {
+            return ((UserTagDTO) item).getFtagId();
+        } else if (item instanceof UserTagRealtimeDTO) {
+            return ((UserTagRealtimeDTO) item).getFtagId();
+        } else {
+            throw new IllegalArgumentException("不支持的类型: " + item.getClass().getSimpleName());
+        }
+    }
+
+
 }

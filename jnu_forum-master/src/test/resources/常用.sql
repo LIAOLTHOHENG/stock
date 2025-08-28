@@ -26,6 +26,7 @@ SELECT
         ELSE CONCAT(ROUND(SUM(sd.amount)/10000, 2), '万')
         END AS totalAmountWithUnit,
     GROUP_CONCAT(
+    		distinct 
             CONCAT(
                     sb.name,
                     '(',
@@ -63,7 +64,7 @@ WHERE 1=1
     ) AS recent_dates
     )
     GROUP BY symbol
-    HAVING COUNT(*) >= 1
+    HAVING COUNT(*) >= 2
     )
   AND utr.symbol IN (
     SELECT symbol
@@ -119,7 +120,7 @@ WHERE 1=1
     )
   AND FTagId IN(5,6,7,17,19)
     GROUP BY symbol
-    HAVING COUNT(*) >= 1
+    HAVING COUNT(*) >= 2
     )
      AND utr.symbol IN (
     SELECT symbol
@@ -133,8 +134,8 @@ ORDER BY tagCount desc;
 select *from daily_report dr order by trade_date desc;
 
 
-select *from stock_realtime sr where name='软通动力' ;
+select *from stock_realtime sr where name='诚迈科技' ;
 select * from stock_daily sd where ts_code ='301236.SZ' and trade_date ='20250828';
 select * from user_tag_relation_realtime utrr where symbol ='301236';
-select *from user_tag_relation utr where symbol ='601608' and `date`  ='20250828';
+select  * from user_tag_relation utr where symbol ='002651' order by `date` desc;
 
