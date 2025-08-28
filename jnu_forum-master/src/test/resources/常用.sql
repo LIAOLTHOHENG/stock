@@ -8,7 +8,6 @@ SELECT
         ELSE CONCAT(ROUND(sb.totalMarketCap / 10000, 2), '万')
         END AS totalMarketCapWithUnit,
     CASE
-
         WHEN sd.amount >= 100000 THEN CONCAT(ROUND(sd.amount / 100000, 2), '亿')
         ELSE CONCAT(ROUND(sd.amount / 10, 2), '万')
         END AS amountWithUnit,
@@ -19,7 +18,7 @@ FROM user_tag_relation utr
 WHERE FTagId = 19 and `date` ='20250826'
 ORDER BY sd.amount  DESC, utr.`date`  DESC;
 
--- 实时 tagid:5,6,7,17
+-- 实时 tagid:5,6,7,17,19
 SELECT
     sb.industry,
     CASE
@@ -57,13 +56,14 @@ WHERE 1=1
     SELECT date
     FROM (
     SELECT DISTINCT date
-    FROM user_tag_relation
+    FROM user_tag_relation 
+    WHERE date < CURDATE()
     ORDER BY date DESC
-    LIMIT 9
+    LIMIT 5
     ) AS recent_dates
     )
     GROUP BY symbol
-    HAVING COUNT(*) >= 2
+    HAVING COUNT(*) >= 1
     )
   AND utr.symbol IN (
     SELECT symbol
@@ -73,7 +73,6 @@ WHERE 1=1
 GROUP BY sb.industry
 ORDER BY tagCount DESC;
 
-select * from daily_report dr order by trade_date desc;
 
 -- 盘后
 SELECT
@@ -104,7 +103,7 @@ FROM user_tag_relation utr
     LEFT JOIN stock_daily sd ON sb.ts_code = sd.ts_code AND utr.date = sd.trade_date
 WHERE 1=1
   AND FTagId IN(5,6,7,17,19)
-  AND date = '20250826'
+  AND date = '20250828'
   AND utr.symbol IN (
     SELECT symbol
     FROM user_tag_relation
@@ -113,13 +112,29 @@ WHERE 1=1
     FROM (
     SELECT DISTINCT date
     FROM user_tag_relation
+    WHERE date < CURDATE()
     ORDER BY date DESC
     LIMIT 5
     ) AS recent_dates
     )
   AND FTagId IN(5,6,7,17,19)
     GROUP BY symbol
-    HAVING COUNT(*) >= 2+1
+    HAVING COUNT(*) >= 1
+    )
+     AND utr.symbol IN (
+    SELECT symbol
+    FROM user_tag_relation
+    WHERE `date` = '20250828'
+    and FTagId = 801
     )
 GROUP BY sb.industry
 ORDER BY tagCount desc;
+
+select *from daily_report dr order by trade_date desc;
+
+
+select *from stock_realtime sr where name='软通动力' ;
+select * from stock_daily sd where ts_code ='301236.SZ' and trade_date ='20250828';
+select * from user_tag_relation_realtime utrr where symbol ='301236';
+select *from user_tag_relation utr where symbol ='301236' and `date`  ='20250828';
+

@@ -202,7 +202,7 @@ public class TagTask {
         List<UserTagDTO> resultList = new ArrayList<>();
 
         //涨跌幅
-        List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, date, 5);
+        List<StockDaily> sortedList = stockDailyMapper.selectByTsCodeAndDateRage(stock.getTsCode(), null, date, 6);
         StockDaily today = null;
         if (sortedList.size() > 0) {
             today = sortedList.get(0);

@@ -18,8 +18,8 @@ class RealtimeTest {
 
     @Test
     public void runRealtime() {
-        dailySchedule.runRealTime();
-        realTimeTagTask.setUserTag("中信重工", null);
+        //dailySchedule.runRealTime();
+        realTimeTagTask.setUserTag("软通动力", null);
     }
 }
 
