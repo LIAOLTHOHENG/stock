@@ -136,5 +136,5 @@ select *from daily_report dr order by trade_date desc;
 select *from stock_realtime sr where name='»ÌÕ®∂Ø¡¶' ;
 select * from stock_daily sd where ts_code ='301236.SZ' and trade_date ='20250828';
 select * from user_tag_relation_realtime utrr where symbol ='301236';
-select *from user_tag_relation utr where symbol ='301236' and `date`  ='20250828';
+select *from user_tag_relation utr where symbol ='601608' and `date`  ='20250828';
 

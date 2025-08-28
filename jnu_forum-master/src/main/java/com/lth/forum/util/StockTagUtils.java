@@ -62,7 +62,7 @@ public class StockTagUtils {
         }
         
         //成交量相关的
-        if (sortedList.size() == 5) {
+        if (sortedList.size() == 6) {
             boolean fail = false;
             //从前往后 找出最高点 以及对应的下标
             long anchor = 0;
