@@ -115,7 +115,7 @@ public class QueryController {
      */
     @GetMapping("/fresh_realtime")
     public String afrshRealTime() {
-        //dailySchedule.runRealTime();
+        dailySchedule.runRealTime();
         List<LeafTag> tags =  new ArrayList<>(LeafTag.getUpTags());
         tags.add(LeafTag.STABLE_VOLUME);
         realTimeTagTask.setUserTag(null, tags);
