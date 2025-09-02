@@ -59,7 +59,7 @@ public class StockTagUtils {
             tagConsumer.accept(stock.getSymbol(), LeafTag.UP_YUNXIAN.getCode());
         } else if (yesterdayChange.compareTo(BigDecimal.ZERO) <= 0 
                 && todayChange.divide(yesterday.getClose(), 3, RoundingMode.HALF_UP).abs().compareTo(new BigDecimal("0.01")) <= 0
-                && todayOpen.compareTo(yesterday.getClose()) < 0 && todayClose.compareTo(yesterday.getClose()) < 0) {
+                && todayOpen.compareTo(yesterday.getClose()) <= 0 && todayClose.compareTo(yesterday.getClose()) <= 0) {
             tagConsumer.accept(stock.getSymbol(), LeafTag.UP_SHIZI.getCode());
         }
         

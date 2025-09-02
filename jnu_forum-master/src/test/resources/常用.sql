@@ -104,7 +104,7 @@ FROM user_tag_relation utr
     LEFT JOIN stock_daily sd ON sb.ts_code = sd.ts_code AND utr.date = sd.trade_date
 WHERE 1=1
   AND FTagId IN(5,6,7,17,19)
-  AND date = '20250901'
+  AND date = '20250902'
   AND utr.symbol IN (
     SELECT symbol
     FROM user_tag_relation
@@ -125,7 +125,7 @@ WHERE 1=1
      AND utr.symbol IN (
     SELECT symbol
     FROM user_tag_relation
-    WHERE `date` = '20250901'
+    WHERE `date` = '20250902'
     and FTagId = 801
     )
 GROUP BY sb.industry
@@ -134,9 +134,9 @@ ORDER BY tagCount desc;
 select *from daily_report dr order by trade_date desc;
 
 
-select *from stock_realtime sr where name='新 华 都' ;
+select *from stock_realtime sr where name='中通客车' ;
 select * from stock_daily sd where ts_code ='301236.SZ' and trade_date ='20250828';
-select * from user_tag_relation_realtime utrr where symbol ='002264';
+select * from user_tag_relation_realtime utrr where symbol ='000957';
 select  * from user_tag_relation utr  order by `date` desc;
 select * from stock_daily sd order by trade_date desc;
 
