@@ -38,7 +38,7 @@ SELECT
                     round(((sd.close/sd.pre_close)-1)*100,2) ,'%'
                         ')'
             )
-                ORDER BY sd.amount DESC
+                ORDER BY sd.amount desc
         SEPARATOR ','
     ) AS names,
         COUNT(*) AS tagCount
@@ -104,7 +104,7 @@ FROM user_tag_relation utr
     LEFT JOIN stock_daily sd ON sb.ts_code = sd.ts_code AND utr.date = sd.trade_date
 WHERE 1=1
   AND FTagId IN(5,6,7,17,19)
-  AND date = '20250903'
+  AND date = '20250904'
   AND utr.symbol IN (
     SELECT symbol
     FROM user_tag_relation
@@ -125,7 +125,7 @@ WHERE 1=1
      AND utr.symbol IN (
     SELECT symbol
     FROM user_tag_relation
-    WHERE `date` = '20250903'
+    WHERE `date` = '20250904'
     and FTagId = 801
     )
 GROUP BY sb.industry
