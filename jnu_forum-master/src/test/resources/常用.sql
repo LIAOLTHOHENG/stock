@@ -24,55 +24,61 @@ SELECT
     CASE
         WHEN SUM(sd.amount) >= 100000000 THEN CONCAT(ROUND(SUM(sd.amount) / 100000000, 2), '亿')
         ELSE CONCAT(ROUND(SUM(sd.amount)/10000, 2), '万')
-        END AS totalAmountWithUnit,
+    END AS totalAmountWithUnit,
     GROUP_CONCAT(
-    		distinct 
-            CONCAT(
-                    sb.name,
-                    '(',
-                    CASE
-                        WHEN sd.amount >= 100000000 THEN CONCAT(ROUND(sd.amount / 100000000, 2), '亿')
-                        ELSE CONCAT(ROUND(sd.amount / 10000, 2), '万')
-                        END,
-                    "|",
-                    round(((sd.close/sd.pre_close)-1)*100,2) ,'%'
-                        ')'
-            )
-                ORDER BY sd.amount desc
+        DISTINCT 
+        CONCAT(
+            sb.name,
+            '(',
+            CASE
+                WHEN sd.amount >= 100000000 THEN CONCAT(ROUND(sd.amount / 100000000, 2), '亿')
+                ELSE CONCAT(ROUND(sd.amount / 10000, 2), '万')
+            END,
+            "|",
+            ROUND(((sd.close/sd.pre_close)-1)*100, 2), '%'
+            ')'
+        )
+        ORDER BY sd.amount DESC
         SEPARATOR ','
     ) AS names,
-        COUNT(*) AS tagCount
+    -- 计算比例值
+    COUNT(*) / (SELECT COUNT(*) FROM stock_basic sb2 WHERE sb2.industry = sb.industry) AS ratio,
+    COUNT(*) AS tagCount,
+    -- 添加行业股票总数字段用于计算比例
+    (SELECT COUNT(*) FROM stock_basic sb2 WHERE sb2.industry = sb.industry) AS industryStockCount
 FROM user_tag_relation_realtime utr
     LEFT JOIN stock_basic sb ON utr.symbol = sb.symbol
     LEFT JOIN stock_realtime sd ON sb.ts_code = sd.ts_code
 WHERE 1=1
-  AND FTagId IN(5,6,7,17,19)
-  AND sb.industry != '-'
-  AND utr.symbol IN (
-    SELECT symbol
-    FROM user_tag_relation
-    WHERE 1=1
-  AND FTagId IN(5,6,7,17,19)
-  AND date IN (
-    SELECT date
-    FROM (
-    SELECT DISTINCT date
-    FROM user_tag_relation 
-    WHERE date < CURDATE()
-    ORDER BY date DESC
-    LIMIT 5
-    ) AS recent_dates
+    AND FTagId IN(5,6,7,17,19)
+    AND sb.industry != '-'
+    AND utr.symbol IN (
+        SELECT symbol
+        FROM user_tag_relation
+        WHERE 1=1
+            AND FTagId IN(5,6,7,17,19)
+            AND date IN (
+                SELECT date
+                FROM (
+                    SELECT DISTINCT date
+                    FROM user_tag_relation 
+                    WHERE date < CURDATE()
+                    ORDER BY date DESC
+                    LIMIT 9
+                ) AS recent_dates
+            )
+        GROUP BY symbol
+        HAVING COUNT(*) >= 1
     )
-    GROUP BY symbol
-    HAVING COUNT(*) >= 2
-    )
-  AND utr.symbol IN (
-    SELECT symbol
-    FROM user_tag_relation_realtime
-    WHERE FTagId = 801
+    AND utr.symbol IN (
+        SELECT symbol
+        FROM user_tag_relation_realtime
+        WHERE FTagId = 801
     )
 GROUP BY sb.industry
-ORDER BY tagCount DESC;
+-- 修改排序方式：按 tagCount/行业股票数 的倒序排序
+ORDER BY (COUNT(*) / (SELECT COUNT(*) FROM stock_basic sb2 WHERE sb2.industry = sb.industry)) DESC;
+
 
 
 -- 盘后
@@ -98,13 +104,17 @@ SELECT
         ORDER BY sd.amount DESC
         SEPARATOR ','
         ) AS names,
-        COUNT(*) AS tagCount
+        -- 计算比例值
+        COUNT(*) / (SELECT COUNT(*) FROM stock_basic sb2 WHERE sb2.industry = sb.industry) AS ratio,
+        COUNT(*) AS tagCount,
+        -- 添加行业股票总数
+        (SELECT COUNT(*) FROM stock_basic sb2 WHERE sb2.industry = sb.industry) AS industryStockCount
 FROM user_tag_relation utr
     LEFT JOIN stock_basic sb ON utr.symbol = sb.symbol
     LEFT JOIN stock_daily sd ON sb.ts_code = sd.ts_code AND utr.date = sd.trade_date
 WHERE 1=1
   AND FTagId IN(5,6,7,17,19)
-  AND date = '20250908'
+  AND date = '20250911'
   AND utr.symbol IN (
     SELECT symbol
     FROM user_tag_relation
@@ -115,30 +125,33 @@ WHERE 1=1
     FROM user_tag_relation
     WHERE date < CURDATE()
     ORDER BY date DESC
-    LIMIT 5
+    LIMIT 10
     ) AS recent_dates
     )
   AND FTagId IN(5,6,7,17,19)
     GROUP BY symbol
-    HAVING COUNT(*) >= 2
+    HAVING COUNT(*) >= 1
     )
      AND utr.symbol IN (
     SELECT symbol
     FROM user_tag_relation
-    WHERE `date` = '20250908'
+    WHERE date = '20250911'
     and FTagId = 801
     )
 GROUP BY sb.industry
-ORDER BY tagCount desc;
+-- 修改排序方式：按 tagCount/行业股票数 的倒序排序
+ORDER BY (COUNT(*) / (SELECT COUNT(*) FROM stock_basic sb2 WHERE sb2.industry = sb.industry)) DESC;
+
 
 select *from daily_report dr order by trade_date desc;
 
 
-select *from stock_realtime sr where name='中通客车' ;
-select * from stock_daily sd where ts_code ='301236.SZ' and trade_date ='20250828';
-select * from user_tag_relation_realtime utrr where symbol ='000957';
-select  * from user_tag_relation utr  order by `date` desc;
+select *from stock_realtime sr where name='元隆雅图' ;
+select * from stock_daily sd where ts_code ='002878.SZ' and trade_date ='20250828';
+select * from user_tag_relation_realtime utrr where symbol ='002878';
+select * from stock_basic sb where ts_code ='002878.SZ';
+select  * from user_tag_relation utr where symbol ='002878' order by `date` desc;
 select * from stock_daily sd order by trade_date desc;
 
-
+select count(1) from stock_basic sb where industry ='家电行业';
 
