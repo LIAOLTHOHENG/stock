@@ -114,7 +114,7 @@ FROM user_tag_relation utr
     LEFT JOIN stock_daily sd ON sb.ts_code = sd.ts_code AND utr.date = sd.trade_date
 WHERE 1=1
   AND FTagId IN(5,6,7,17,19)
-  AND date = '20250911'
+  AND date = '20250912'
   AND utr.symbol IN (
     SELECT symbol
     FROM user_tag_relation
@@ -135,7 +135,7 @@ WHERE 1=1
      AND utr.symbol IN (
     SELECT symbol
     FROM user_tag_relation
-    WHERE date = '20250911'
+    WHERE date = '20250912'
     and FTagId = 801
     )
 GROUP BY sb.industry
@@ -146,11 +146,11 @@ ORDER BY (COUNT(*) / (SELECT COUNT(*) FROM stock_basic sb2 WHERE sb2.industry = 
 select *from daily_report dr order by trade_date desc;
 
 
-select *from stock_realtime sr where name='元隆雅图' ;
+select *from stock_realtime sr where name='尚太科技' ;
 select * from stock_daily sd where ts_code ='002878.SZ' and trade_date ='20250828';
 select * from user_tag_relation_realtime utrr where symbol ='002878';
-select * from stock_basic sb where ts_code ='002878.SZ';
-select  * from user_tag_relation utr where symbol ='002878' order by `date` desc;
+select * from stock_basic sb where ts_code ='001301.SZ';
+select  * from user_tag_relation utr where symbol ='001301' order by `date` desc;
 select * from stock_daily sd order by trade_date desc;
 
 select count(1) from stock_basic sb where industry ='家电行业';
