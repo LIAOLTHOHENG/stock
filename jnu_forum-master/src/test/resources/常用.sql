@@ -152,9 +152,9 @@ select * from user_tag_relation_realtime utrr where symbol ='002878';
 select * from stock_basic sb where ts_code ='300277.SZ';
 select  * from user_tag_relation utr where symbol ='002530' order by `date` desc;
 select * from stock_daily sd order by trade_date desc;
-delete from stock_daily where trade_date ='20250919';
-delete from user_tag_relation where `date` ='20250919';
-delete from daily_report where trade_date ='20250919';
+delete from stock_daily where trade_date ='20250923';
+delete from user_tag_relation where `date` ='20250923';
+delete from daily_report where trade_date ='20250923';
 select count(1) from stock_basic sb where industry ='家电行业';
 
 
