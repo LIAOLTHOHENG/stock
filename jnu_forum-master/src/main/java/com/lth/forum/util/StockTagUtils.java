@@ -119,6 +119,9 @@ public class StockTagUtils {
                         && todayOpen.compareTo(yesterday.getClose()) <= 0//今日开盘价小于昨日收盘价
                         && todayClose.compareTo(yesterday.getOpen()) >= 0) {//今日收盘价大于等于昨日开盘价
                     tagConsumer.accept(stock.getSymbol(), LeafTag.UP_HUG.getCode());
+                } else if (yesterday.getOpen().compareTo(yesterday.getClose()) > 0 //昨日阴线
+                        && todayOpen.compareTo(yesterday.getOpen()) >= 0) {
+                    tagConsumer.accept(stock.getSymbol(), LeafTag.UP_JUMP_UP.getCode());
                 }
             }
         } else if (todayChange.compareTo(BigDecimal.ZERO) < 0) {
