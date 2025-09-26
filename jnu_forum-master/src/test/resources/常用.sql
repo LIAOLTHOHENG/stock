@@ -56,7 +56,7 @@ WHERE 1=1
         SELECT symbol
         FROM user_tag_relation
         WHERE 1=1
-            AND FTagId IN(5,6,7,17,19)
+            AND FTagId IN(5,6,7,17,19,20)
             AND date IN (
                 SELECT date
                 FROM (
@@ -152,7 +152,7 @@ select * from user_tag_relation_realtime utrr where symbol ='002878';
 select * from stock_basic sb where ts_code ='300277.SZ';
 select  * from user_tag_relation utr where symbol ='002530' order by `date` desc;
 select * from stock_daily sd order by trade_date desc;
-select * from user_tag_relation utr where FTagId =20;
+select * from user_tag_relation utr where FTagId =5 and `date` ='20250925';
 delete from stock_daily where trade_date ='20250925';
 delete from user_tag_relation where `date` ='20250925';
 delete from daily_report where trade_date ='20250925';
